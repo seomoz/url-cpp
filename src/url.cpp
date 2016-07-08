@@ -155,8 +155,14 @@ namespace Url
         str.resize(length);
     }
 
-    Url& Url::abspath()
+    std::string Url::str() const
     {
+        std::string result;
+
+        return result;
+    }
+
+    Url& Url::abspath() {
         std::vector<std::string> segments;
         bool directory = false;
         size_t previous = 0;
