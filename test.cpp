@@ -253,6 +253,114 @@ TEST(ParamTest, SanitizesParams)
     EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2;;;").params());
 }
 
+TEST(AbspathTest, BasicPath)
+{
+    EXPECT_EQ("/howdy",
+        Url::Url("http://foo.com/howdy").abspath().path());
+}
+
+TEST(AbspathTest, RepeatedSeparator)
+{
+    EXPECT_EQ("/hello/how/are",
+        Url::Url("http://foo.com/hello//how//are").abspath().path());
+}
+
+TEST(AbspathTest, ParentDirectory)
+{
+    EXPECT_EQ("/how/are",
+        Url::Url("http://foo.com/hello/../how/are").abspath().path());
+}
+
+TEST(AbspathTest, ParentDirectoryWithRepeatedSeparators)
+{
+    EXPECT_EQ("/how/",
+        Url::Url("http://foo.com/hello//..//how/").abspath().path());
+}
+
+TEST(AbspathTest, GrandparentDirectory)
+{
+    EXPECT_EQ("/c",
+        Url::Url("http://foo.com/a/b/../../c").abspath().path());
+}
+
+TEST(AbspathTest, UpMoreLevelsThanSegments)
+{
+    EXPECT_EQ("/c",
+        Url::Url("http://foo.com/../../../c").abspath().path());
+}
+
+TEST(AbspathTest, CurrentDirectory)
+{
+    EXPECT_EQ("/hello",
+        Url::Url("http://foo.com/./hello").abspath().path());
+}
+
+TEST(AbspathTest, CurrentDirectoryRepeated)
+{
+    EXPECT_EQ("/hello",
+        Url::Url("http://foo.com/./././hello").abspath().path());
+}
+
+TEST(AbspathTest, MultipleSegmentsDirectory)
+{
+    EXPECT_EQ("/a/b/c/",
+        Url::Url("http://foo.com/a/b/c/").abspath().path());
+}
+
+TEST(AbspathTest, TrailingParentDirectory)
+{
+    EXPECT_EQ("/a/b/",
+        Url::Url("http://foo.com/a/b/c/..").abspath().path());
+}
+
+TEST(AbspathTest, TrailingCurrentDirectory)
+{
+    EXPECT_EQ("/a/b/",
+        Url::Url("http://foo.com/a/b/.").abspath().path());
+}
+
+TEST(AbspathTest, TrailingCurrentDirectoryMultiple)
+{
+    EXPECT_EQ("/a/b/",
+        Url::Url("http://foo.com/a/b/./././").abspath().path());
+}
+
+TEST(AbspathTest, TrailingParentDirectorySlash)
+{
+    EXPECT_EQ("/a/",
+        Url::Url("http://foo.com/a/b/../").abspath().path());
+}
+
+TEST(AbspathTest, OnlyCurrentDirectory)
+{
+    EXPECT_EQ("/",
+        Url::Url("http://foo.com/.").abspath().path());
+}
+
+TEST(AbspathTest, OnlyMultipleParentDirectories)
+{
+    EXPECT_EQ("/",
+        Url::Url("http://foo.com/../../..").abspath().path());
+}
+
+TEST(AbspathTest, TrailingDotInLastSegment)
+{
+    EXPECT_EQ("/whiz.",
+        Url::Url("http://foo.com//foo/../whiz.").abspath().path());
+}
+
+TEST(AbspathTest, TrailingDotInSegmentSlash)
+{
+    EXPECT_EQ("/foo/whiz./",
+        Url::Url("http://foo.com//foo/whiz./").abspath().path());
+}
+
+TEST(AbspathTest, TrailingDotInSegment)
+{
+    EXPECT_EQ("/foo/whiz./bar",
+        Url::Url("http://foo.com//foo/whiz./bar").abspath().path());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

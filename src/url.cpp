@@ -155,4 +155,7 @@ namespace Url
         str.resize(length);
     }
 
+    Url& Url::abspath() {
+        return *this;
+    }
 };
