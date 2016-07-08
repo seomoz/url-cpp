@@ -380,6 +380,209 @@ TEST(AbspathTest, TrailingDotInSegment)
         Url::Url("http://foo.com//foo/whiz./bar").abspath().path());
 }
 
+TEST(RelativeTest, SchemeRelative)
+{
+    Url::Url base("http://foo.com/");
+    EXPECT_EQ("http://relative.com/",
+        Url::Url("//relative.com/").relative_to(base).str());
+}
+
+TEST(RelativeTest, IncludeUserinfo)
+{
+    Url::Url base("http://user@foo.com/");
+    EXPECT_EQ("http://user@foo.com/path",
+        Url::Url("/path").relative_to(base).str());
+}
+
+TEST(RelativeTest, AbsoluteRelative)
+{
+    Url::Url base("http://foo.com/");
+    EXPECT_EQ("https://relative.com/",
+        Url::Url("https://relative.com/").relative_to(base).str());
+}
+
+TEST(RelativeTest, RelativePath)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/some/path",
+        Url::Url("some/path").relative_to(base).str());
+}
+
+TEST(RelativeTest, RelativePathDirectory)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/some/path/",
+        Url::Url("some/path/").relative_to(base).str());
+}
+
+TEST(RelativeTest, AbsolutePath)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/some/path",
+        Url::Url("/some/path").relative_to(base).str());
+}
+
+TEST(RelativeTest, ParamsOnly)
+{
+    Url::Url base("http://foo.com/a/b/c;existing?query");
+    EXPECT_EQ("http://foo.com/a/b/;params",
+        Url::Url(";params").relative_to(base).str());
+}
+
+TEST(RelativeTest, PathAndParams)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/path;params",
+        Url::Url("path;params").relative_to(base).str());
+}
+
+TEST(RelativeTest, ParamsAndQuery)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/;params?query",
+        Url::Url(";params?query").relative_to(base).str());
+}
+
+TEST(RelativeTest, PathAndQuery)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/path?query",
+        Url::Url("path?query").relative_to(base).str());
+}
+
+TEST(RelativeTest, QueryOnly)
+{
+    Url::Url base("http://foo.com/a/b/c;params?existin");
+    EXPECT_EQ("http://foo.com/a/b/c;params?query",
+        Url::Url("?query").relative_to(base).str());
+}
+
+TEST(RelativeTest, PathAndFragment)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/path#fragment",
+        Url::Url("path#fragment").relative_to(base).str());
+}
+
+TEST(RelativeTest, FragmentOnly)
+{
+    Url::Url base("http://foo.com/a/b/c");
+    EXPECT_EQ("http://foo.com/a/b/c#fragment",
+        Url::Url("#fragment").relative_to(base).str());
+}
+
+TEST(RelativeTest, Dot)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/b/c/",
+        Url::Url(".").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotDirectoryBase)
+{
+    Url::Url base("http://foo.com/a/b/c/d/");
+    EXPECT_EQ("http://foo.com/a/b/c/d/",
+        Url::Url(".").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotSlash)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/b/c/",
+        Url::Url("./").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotDot)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/b/",
+        Url::Url("..").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotDotDirectoryBase)
+{
+    Url::Url base("http://foo.com/a/b/c/d/");
+    EXPECT_EQ("http://foo.com/a/b/c/",
+        Url::Url("..").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotDotSlash)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/b/",
+        Url::Url("../").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, DotDotSlashName)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/b/g",
+        Url::Url("../g").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, Grandparent)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/",
+        Url::Url("../..").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, GrandparentDirectory)
+{
+    Url::Url base("http://foo.com/a/b/c/d");
+    EXPECT_EQ("http://foo.com/a/",
+        Url::Url("../../").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, EmptyBase)
+{
+    Url::Url base("");
+    EXPECT_EQ("http://foo.com/a;param?query#fragment",
+        Url::Url("http://foo.com/a;param?query#fragment").relative_to(base).abspath().str());
+}
+
+TEST(RelativeTest, EmptyRelative)
+{
+    Url::Url base("http://foo.com/a/b/c;params?query#fragment");
+    EXPECT_EQ("http://foo.com/a/b/c;params?query#fragment",
+        Url::Url("").relative_to(base).str());
+}
+
+TEST(RelativeTest, EmptyBasePath)
+{
+    Url::Url base("http://foo.com");
+    EXPECT_EQ("http://foo.com/path",
+        Url::Url("path").relative_to(base).str());
+}
+
+TEST(RelativeTest, EmptyRelativePath)
+{
+    Url::Url base("http://foo.com/path");
+    EXPECT_EQ("http://relative.com/",
+        Url::Url("http://relative.com").relative_to(base).str());
+}
+
+TEST(RelativeTest, RelativeBase)
+{
+    Url::Url base("base");
+    EXPECT_EQ("relative",
+        Url::Url("relative").relative_to(base).str());
+}
+
+TEST(RelativeTest, RelativeBaseWithSegments)
+{
+    Url::Url base("base/path");
+    EXPECT_EQ("base/relative/path",
+        Url::Url("relative/path").relative_to(base).str());
+}
+
+TEST(RelativeTest, BaseWithDirectory)
+{
+    Url::Url base("http://foo.com/path/is/directory/");
+    EXPECT_EQ("http://foo.com/path/is/directory/relative",
+        Url::Url("relative").relative_to(base).str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

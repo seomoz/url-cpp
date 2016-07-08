@@ -79,6 +79,19 @@ namespace Url
          */
         Url& abspath();
 
+        /**
+         * Evaluate this URL relative fo `other`, placing the result in this object.
+         */
+        Url& relative_to(const std::string& other)
+        {
+            return relative_to(Url(other));
+        }
+
+        /**
+         * Evaluate this URL relative fo `other`, placing the result in this object.
+         */
+        Url& relative_to(const Url& other);
+
     private:
         // Private, unimplemented to prevent use.
         Url();

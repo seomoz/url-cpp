@@ -305,4 +305,8 @@ namespace Url
         return *this;
     }
 
+    Url& Url::relative_to(const Url& other) {
+        return *this;
+    }
+
 };
