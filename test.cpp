@@ -583,6 +583,127 @@ TEST(RelativeTest, BaseWithDirectory)
         Url::Url("relative").relative_to(base).str());
 }
 
+TEST(EscapeTest, IncompleteEntity)
+{
+    EXPECT_EQ("trailing-incomplete%252",
+        Url::Url("trailing-incomplete%2").escape().str());
+}
+
+TEST(EscapeTest, ZeroLengthEntity)
+{
+    EXPECT_EQ("zero-length-%25",
+        Url::Url("zero-length-%").escape().str());
+}
+
+TEST(EscapeTest, NonHexEntity)
+{
+    EXPECT_EQ("non-hex-%25ZW",
+        Url::Url("non-hex-%ZW").escape().str());
+}
+
+TEST(EscapeTest, ExtraDigitsInEntity)
+{
+    EXPECT_EQ("more-digits%20AF",
+        Url::Url("more-digits%20AF").escape().str());
+}
+
+TEST(EscapeTest, CapitalizeEntities)
+{
+    EXPECT_EQ("capitalize-entities%5E",
+        Url::Url("capitalize-entities%5e").escape().str());
+}
+
+TEST(EscapeTest, HighEntities)
+{
+    EXPECT_EQ("high-entities%EF",
+        Url::Url("high-entities%EF").escape().str());
+}
+
+TEST(EscapeTest, PreservesSpaces)
+{
+    EXPECT_EQ("hello%20and%20how%20are%20you",
+        Url::Url("hello%20and%20how%20are%20you").escape().str());
+}
+
+TEST(EscapeTest, EscapesSpaces)
+{
+    EXPECT_EQ("hello%20world",
+        Url::Url("hello world").escape().str());
+}
+
+TEST(EscapeTest, PermissivePreservesSafeEntities)
+{
+    EXPECT_EQ("path's-ok",
+        Url::Url("path's-ok").escape().str());
+}
+
+TEST(EscapeTest, StrictPreservesSafeEntities)
+{
+    EXPECT_EQ("path's-ok",
+        Url::Url("path's-ok").escape(true).str());
+}
+
+TEST(EscapeTest, PermissiveUnescapesSafeEntities)
+{
+    EXPECT_EQ("path's-ok",
+        Url::Url("path%27s-ok").escape().str());
+}
+
+TEST(EscapeTest, StrictPreservesSafeButReservedEntities)
+{
+    EXPECT_EQ("path%27s-ok",
+        Url::Url("path%27s-ok").escape(true).str());
+}
+
+TEST(EscapeTest, PermissiveFromUrlPy)
+{
+    EXPECT_EQ("danny\'s%20pub",
+        Url::Url("danny\'s pub").escape().str());
+    EXPECT_EQ("danny\'s%20pub",
+        Url::Url("danny%27s pub").escape().str());
+    EXPECT_EQ("danny\'s%20pub?foo=bar&yo",
+        Url::Url("danny\'s pub?foo=bar&yo").escape().str());
+    EXPECT_EQ("hello,%20world",
+        Url::Url("hello%2c world").escape().str());
+    EXPECT_EQ("%3F%23%5B%5D",
+        Url::Url("%3f%23%5b%5d").escape().str());
+    // Thanks to @myronmarston for these test cases
+    EXPECT_EQ("foo?bar%20none=foo%20bar",
+        Url::Url("foo?bar none=foo bar").escape().str());
+    EXPECT_EQ("foo;a=1;b=2?a=1&b=2",
+        Url::Url("foo;a=1;b=2?a=1&b=2").escape().str());
+    EXPECT_EQ("foo?bar=%5B%22hello%22,%22howdy%22%5D",
+        Url::Url("foo?bar=[\"hello\",\"howdy\"]").escape().str());
+    // Example from the wild
+    EXPECT_EQ("http://www.balset.com/DE3FJ4Yg/p:h=300&m=2011~07~25~2444705.png&ma=cb&or=1&w=400/2011/10/10/2923710.jpg",
+        Url::Url("http://www.balset.com/DE3FJ4Yg/p:h=300&m=2011~07~25~2444705.png&ma=cb&or=1&w=400/2011/10/10/2923710.jpg").escape().str());
+    // Example with userinfo
+    EXPECT_EQ("http://user:pass@foo.com/",
+        Url::Url("http://user%3Apass@foo.com/").escape().str());
+}
+
+TEST(EscapeTest, StrictFromUrlPy)
+{
+    EXPECT_EQ("danny%27s%20pub",
+        Url::Url("danny%27s pub").escape(true).str());
+    EXPECT_EQ("this_and_that",
+        Url::Url("this%5Fand%5Fthat").escape(true).str());
+    EXPECT_EQ("http://user:pass@foo.com/",
+        Url::Url("http://user:pass@foo.com").escape(true).str());
+    EXPECT_EQ("http://Jos%C3%A9:no%20way@foo.com/",
+        Url::Url("http://José:no way@foo.com").escape(true).str());
+    EXPECT_EQ("http://oops!:don%27t@foo.com/",
+        Url::Url("http://oops!:don%27t@foo.com").escape(true).str());
+    EXPECT_EQ("espa%C3%B1ola,nm%2Cusa.html?gunk=junk+glunk&foo=bar%20baz",
+        Url::Url("española,nm%2cusa.html?gunk=junk+glunk&foo=bar baz").escape(true).str());
+    EXPECT_EQ("http://foo.com/bar%0Abaz.html%0A",
+        Url::Url("http://foo.com/bar\nbaz.html\n").escape(true).str());
+    EXPECT_EQ("http://foo.com/bar.jsp?param=%0A/value%2F",
+        Url::Url("http://foo.com/bar.jsp?param=\n/value%2F").escape(true).str());
+    EXPECT_EQ("http://user%3Apass@foo.com/",
+        Url::Url("http://user%3apass@foo.com/").escape(true).str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

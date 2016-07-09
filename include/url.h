@@ -92,6 +92,14 @@ namespace Url
          */
         Url& relative_to(const Url& other);
 
+        /**
+         * Ensure that the path, params, query, and userinfo are properly escaped.
+         *
+         * In 'strict' mode, only entities that are both safe and not reserved characters
+         * are unescaped. In non-strict mode, entities that are safe are unescaped.
+         */
+        Url& escape(bool strict=false);
+
     private:
         // Private, unimplemented to prevent use.
         Url();

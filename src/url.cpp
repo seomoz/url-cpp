@@ -368,4 +368,9 @@ namespace Url
         return *this;
     }
 
+    Url& Url::escape(bool strict)
+    {
+        return *this;
+    }
+
 };
