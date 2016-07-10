@@ -512,6 +512,14 @@ namespace Url
 
     Url& Url::remove_default_port()
     {
+        if (port_ && !scheme_.empty())
+        {
+            auto it = PORTS.find(scheme_);
+            if (it != PORTS.end() && port_ == it->second)
+            {
+                port_ = 0;
+            }
+        }
         return *this;
     }
 
