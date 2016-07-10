@@ -120,6 +120,11 @@ namespace Url
          */
         Url& deuserinfo();
 
+        /**
+         * Remove the fragment.
+         */
+        Url& defrag();
+
     private:
         // Private, unimplemented to prevent use.
         Url();

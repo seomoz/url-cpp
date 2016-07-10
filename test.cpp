@@ -753,6 +753,12 @@ TEST(DeuserinfoTest, Deuserinfo)
         Url::Url("http://just-user@foo.com/").deuserinfo().str());
 }
 
+TEST(DefragTest, Defrag)
+{
+    EXPECT_EQ("http://foo.com/path",
+        Url::Url("http://foo.com/path#fragment").defrag().str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

@@ -529,4 +529,8 @@ namespace Url
         return *this;
     }
 
+    Url& Url::defrag() {
+        return *this;
+    }
+
 };
