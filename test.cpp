@@ -745,6 +745,14 @@ TEST(RemoveDefaultPortTest, Http8080Test)
         Url::Url("http://foo.com:8080/").remove_default_port().str());
 }
 
+TEST(DeuserinfoTest, Deuserinfo)
+{
+    EXPECT_EQ("http://foo.com/",
+        Url::Url("http://user:pass@foo.com/").deuserinfo().str());
+    EXPECT_EQ("http://foo.com/",
+        Url::Url("http://just-user@foo.com/").deuserinfo().str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

@@ -523,4 +523,8 @@ namespace Url
         return *this;
     }
 
+    Url& Url::deuserinfo() {
+        return *this;
+    }
+
 };

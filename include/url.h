@@ -115,6 +115,11 @@ namespace Url
          */
         Url& remove_default_port();
 
+        /**
+         * Remove the userinfo portion.
+         */
+        Url& deuserinfo();
+
     private:
         // Private, unimplemented to prevent use.
         Url();
