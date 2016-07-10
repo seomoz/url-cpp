@@ -457,4 +457,8 @@ namespace Url
         str.resize(dest);
     }
 
+    Url& Url::deparam(const std::unordered_set<std::string>& blacklist) {
+        return *this;
+    }
+
 };

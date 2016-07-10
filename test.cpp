@@ -704,6 +704,29 @@ TEST(EscapeTest, StrictFromUrlPy)
         Url::Url("http://user%3apass@foo.com/").escape(true).str());
 }
 
+TEST(FilterParams, FiltersQuery)
+{
+    std::unordered_set<std::string> blacklist = {"c"};
+    EXPECT_EQ("?a=1&b=2&d=4", Url::Url("?a=1&b=2&c=3&d=4").deparam(blacklist).str());
+    EXPECT_EQ("?prefix_c=2", Url::Url("?prefix_c=2").deparam(blacklist).str());
+    EXPECT_EQ("", Url::Url("?c=2").deparam(blacklist).str());
+}
+
+TEST(FilterParams, FiltersParams)
+{
+    std::unordered_set<std::string> blacklist = {"c"};
+    EXPECT_EQ(";a=1;b=2;d=4", Url::Url(";a=1;b=2;c=3;d=4").deparam(blacklist).str());
+    EXPECT_EQ(";prefix_c=2", Url::Url(";prefix_c=2").deparam(blacklist).str());
+    EXPECT_EQ("", Url::Url(";c=2").deparam(blacklist).str());
+}
+
+TEST(FilterParams, CaseInsensitivity)
+{
+    std::unordered_set<std::string> blacklist = {"hello"};
+    EXPECT_EQ("", Url::Url("?hELLo=2").deparam(blacklist).str());
+    EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

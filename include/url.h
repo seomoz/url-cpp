@@ -101,6 +101,14 @@ namespace Url
          */
         Url& escape(bool strict=false);
 
+        /**
+         * Remove any params or queries that appear in the blacklist.
+         *
+         * The blacklist should contain only lowercased strings, and the comparison is
+         * done in a case-insensitive way.
+         */
+        Url& deparam(const std::unordered_set<std::string>& blacklist);
+
     private:
         // Private, unimplemented to prevent use.
         Url();
