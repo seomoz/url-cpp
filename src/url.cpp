@@ -457,8 +457,53 @@ namespace Url
         str.resize(dest);
     }
 
-    Url& Url::deparam(const std::unordered_set<std::string>& blacklist) {
+    Url& Url::deparam(const std::unordered_set<std::string>& blacklist)
+    {
+        remove_params(params_, blacklist, ';');
+        remove_params(query_, blacklist, '&');
         return *this;
+    }
+
+    void Url::remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator)
+    {
+        std::vector<std::string> pieces;
+        size_t previous = 0;
+        for (size_t index = str.find(separator)
+            ; index != std::string::npos
+            ; previous = index + 1, index = str.find(separator, previous))
+        {
+            std::string piece = str.substr(previous, index - previous);
+            std::string name = piece.substr(0, piece.find('='));
+            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+            if (blacklist.find(name) == blacklist.end())
+            {
+                pieces.push_back(piece);
+            }
+        }
+
+        if (previous < str.length())
+        {
+            std::string piece = str.substr(previous);
+            std::string name = piece.substr(0, piece.find('='));
+            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+            if (blacklist.find(name) == blacklist.end())
+            {
+                pieces.push_back(piece);
+            }
+        }
+
+        std::string copy;
+        for (auto it = pieces.begin(); it != pieces.end();)
+        {
+            copy.append(*it);
+            for (++it; it != pieces.end(); ++it)
+            {
+                copy.append(1, separator);
+                copy.append(*it);
+            }
+        }
+        str.assign(copy);
     }
 
 };

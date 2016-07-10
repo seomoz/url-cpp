@@ -123,6 +123,11 @@ namespace Url
          */
         void escape(std::string& str, const std::string& safe, bool strict);
 
+        /**
+         * Remove any params that match entries in the blacklist.
+         */
+        void remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator);
+
         std::string scheme_;
         std::string host_;
         int port_;
