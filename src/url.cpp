@@ -529,7 +529,9 @@ namespace Url
         return *this;
     }
 
-    Url& Url::defrag() {
+    Url& Url::defrag()
+    {
+        fragment_.clear();
         return *this;
     }
 
