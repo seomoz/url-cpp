@@ -523,7 +523,9 @@ namespace Url
         return *this;
     }
 
-    Url& Url::deuserinfo() {
+    Url& Url::deuserinfo()
+    {
+        userinfo_.clear();
         return *this;
     }
 
