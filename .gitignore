@@ -1,0 +1,12 @@
+# Binaries and build artifacts
+*.o
+bench
+run-tests
+
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+
+# Vagrant
+.vagrant/
