@@ -122,6 +122,8 @@ namespace Url
             if (index != std::string::npos)
             {
                 query_ = path_.substr(index + 1);
+                remove_repeats(query_, '?');
+                remove_repeats(query_, '&');
                 path_.resize(index);
             }
 
@@ -129,9 +131,28 @@ namespace Url
             if (index != std::string::npos)
             {
                 params_ = path_.substr(index + 1);
+                remove_repeats(params_, ';');
                 path_.resize(index);
             }
         }
+    }
+
+    void Url::remove_repeats(std::string& str, const char chr)
+    {
+        size_t dest = 0;
+        // By initializing this to true, it also strips of leading instances of chr
+        bool seen = true;
+        for (size_t src = 0; src < str.length(); ++src)
+        {
+            if (!seen || (str[src] != chr))
+            {
+                str[dest++] = str[src];
+            }
+            seen = str[src] == chr;
+        }
+        // Remove the last character if it happens to be chr
+        size_t length = ((dest > 0) && (str[dest - 1] == chr)) ? dest - 1 : dest;
+        str.resize(length);
     }
 
 };

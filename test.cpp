@@ -238,6 +238,21 @@ TEST(HostnameTest, LowercasesHostname)
     EXPECT_EQ("www.testing.com", Url::Url("http://www.testing.com/FOO").host());
 }
 
+TEST(QueryTest, SanitizesQuery)
+{
+    EXPECT_EQ("a=1&b=2"    , Url::Url("http://foo.com/?a=1&&&&&&b=2"   ).query());
+    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/????foo=2"       ).query());
+    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/?foo=2&&&"       ).query());
+}
+
+TEST(ParamTest, SanitizesParams)
+{
+    EXPECT_EQ(""           , Url::Url("http://foo.com/"                ).params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2"   ).params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;;;a=1;;;;;;b=2" ).params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2;;;").params());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
