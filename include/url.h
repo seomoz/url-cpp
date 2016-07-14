@@ -67,6 +67,11 @@ namespace Url
         // Private, unimplemented to prevent use.
         Url();
 
+        /**
+         * Remove repeated, leading, and trailing instances of chr from the string.
+         */
+        void remove_repeats(std::string& str, const char chr);
+
         std::string scheme_;
         std::string host_;
         int port_;
