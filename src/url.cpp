@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "url.h"
+#include "punycode.h"
 
 namespace Url
 {
@@ -532,6 +533,14 @@ namespace Url
     Url& Url::defrag()
     {
         fragment_.clear();
+        return *this;
+    }
+
+    Url& Url::punycode() {
+        return *this;
+    }
+
+    Url& Url::unpunycode() {
         return *this;
     }
 

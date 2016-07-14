@@ -125,6 +125,16 @@ namespace Url
          */
         Url& defrag();
 
+        /**
+         * Punycode the hostname.
+         */
+        Url& punycode();
+
+        /**
+         * Unpunycode the hostname.
+         */
+        Url& unpunycode();
+
     private:
         // Private, unimplemented to prevent use.
         Url();

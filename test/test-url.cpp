@@ -758,3 +758,50 @@ TEST(DefragTest, Defrag)
     EXPECT_EQ("http://foo.com/path",
         Url::Url("http://foo.com/path#fragment").defrag().str());
 }
+
+TEST(PunycodeTest, German)
+{
+    std::string unencoded("http://www.kündigen.de/");
+    std::string encoded("http://www.xn--kndigen-n2a.de/");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(encoded).unpunycode().str());
+    EXPECT_EQ(encoded, Url::Url(encoded).unpunycode().punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(unencoded).punycode().unpunycode().str());
+}
+
+TEST(PunycodeTest, Russian)
+{
+    std::string unencoded("http://россия.иком.museum/");
+    std::string encoded("http://xn--h1alffa9f.xn--h1aegh.museum/");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(encoded).unpunycode().str());
+    EXPECT_EQ(encoded, Url::Url(encoded).unpunycode().punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(unencoded).punycode().unpunycode().str());
+}
+
+TEST(PunycodeTest, SingleSegment)
+{
+    std::string unencoded("http://bücher/");
+    std::string encoded("http://xn--bcher-kva/");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(encoded).unpunycode().str());
+    EXPECT_EQ(encoded, Url::Url(encoded).unpunycode().punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(unencoded).punycode().unpunycode().str());
+}
+
+TEST(PunycodeTest, RelativeTest)
+{
+    std::string unencoded("relative-url");
+    std::string encoded("relative-url");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(encoded).unpunycode().str());
+    EXPECT_EQ(encoded, Url::Url(encoded).unpunycode().punycode().str());
+    EXPECT_EQ(unencoded, Url::Url(unencoded).punycode().unpunycode().str());
+}
+
+TEST(PunycodeTest, Safe)
+{
+    std::string unencoded("http://safe.segments/");
+    std::string encoded("http://safe.segments/");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+}
