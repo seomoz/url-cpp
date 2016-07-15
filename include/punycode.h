@@ -7,11 +7,15 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "utf8.h"
+
 namespace Url
 {
 
     struct Punycoder
     {
+        typedef Utf8::codepoint_t punycode_uint;
+
         static const unsigned int BASE          = 36;
         static const unsigned int TMIN          = 1;
         static const unsigned int TMAX          = 26;
@@ -23,6 +27,11 @@ namespace Url
         // Codepoints to their base-36 value
         static const std::vector<int8_t> BASIC_TO_DIGIT;
         static const std::string DIGIT_TO_BASIC;
+
+        // The highest codepoint in unicode
+        static const punycode_uint MAX_PUNYCODE_UINT = std::numeric_limits<punycode_uint>::max();
+        //Utf8::MAX_CODEPOINT;
+        //std::numeric_limits<punycode_uint>::max();
 
         /**
          * Replace utf-8-encoded str into punycode.
@@ -61,7 +70,8 @@ namespace Url
 
     private:
 
-        static long adapt(long delta, long numpoints, bool firsttime);
+        static punycode_uint adapt(
+            punycode_uint delta, punycode_uint numpoints, bool firsttime);
 
     };
 
