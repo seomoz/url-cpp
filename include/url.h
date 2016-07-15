@@ -32,6 +32,7 @@ namespace Url
         const static std::string HEX;
         const static std::string SCHEME;
         const static std::vector<signed char> HEX_TO_DEC;
+        const static std::unordered_map<std::string, int> PORTS;
 
         explicit Url(const std::string& url);
 
@@ -108,6 +109,11 @@ namespace Url
          * done in a case-insensitive way.
          */
         Url& deparam(const std::unordered_set<std::string>& blacklist);
+
+        /**
+         * Remove the port if it's the default for the scheme.
+         */
+        Url& remove_default_port();
 
     private:
         // Private, unimplemented to prevent use.

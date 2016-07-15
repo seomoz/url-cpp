@@ -727,6 +727,24 @@ TEST(FilterParams, CaseInsensitivity)
     EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
 }
 
+TEST(RemoveDefaultPortTest, HttpTest)
+{
+    EXPECT_EQ("http://foo.com/",
+        Url::Url("http://foo.com:80/").remove_default_port().str());
+}
+
+TEST(RemoveDefaultPortTest, HttpsTest)
+{
+    EXPECT_EQ("https://foo.com/",
+        Url::Url("https://foo.com:443/").remove_default_port().str());
+}
+
+TEST(RemoveDefaultPortTest, Http8080Test)
+{
+    EXPECT_EQ("http://foo.com:8080/",
+        Url::Url("http://foo.com:8080/").remove_default_port().str());
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);

@@ -50,6 +50,10 @@ namespace Url
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
+    const std::unordered_map<std::string, int> Url::PORTS = {
+        {"http", 80},
+        {"https", 443}
+    };
 
     Url::Url(const std::string& url): port_(0)
     {
@@ -504,6 +508,11 @@ namespace Url
             }
         }
         str.assign(copy);
+    }
+
+    Url& Url::remove_default_port()
+    {
+        return *this;
     }
 
 };
