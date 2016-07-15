@@ -1,5 +1,5 @@
 CPP          = g++
-CPPOPTS      = -Wall -std=c++11 -Iinclude/
+CPPOPTS      = -Wall -Werror -std=c++11 -Iinclude/
 DEBUG_OPTS   = -fprofile-arcs -ftest-coverage -O0 -g -fPIC
 RELEASE_OPTS = -O3
 
