@@ -93,7 +93,9 @@ namespace Url
         }
 
         // Search for the netloc
-        if (url.substr(position, 2).compare("//") == 0)
+        if ((url.length() - position) >= 1
+            && url[position] == '/'
+            && url[position + 1] == '/')
         {
             // Skip the '//'
             position += 2;
@@ -273,26 +275,29 @@ namespace Url
 
     Url& Url::abspath()
     {
-        std::vector<std::string> segments;
+        std::string copy;
+        std::vector<size_t> segment_starts;
         bool directory = false;
         size_t previous = 0;
-        for (size_t index = path_.find('/')
+        size_t index = 0;
+        for (index = path_.find('/')
             ; index != std::string::npos
             ; previous = index + 1, index = path_.find('/', index + 1))
         {
-            std::string segment = path_.substr(previous, index - previous);
-
-            if (segment.empty())
+            // Skip empty segments
+            if (index - previous == 0)
             {
-                // Skip empty segments
                 continue;
             }
 
-            if ((index - previous == 2) && segment.compare("..") == 0)
+            if ((index - previous == 2)
+                && path_[previous] == '.'
+                && path_[previous + 1] == '.')
             {
-                if (!segments.empty())
+                if (!segment_starts.empty())
                 {
-                    segments.pop_back();
+                    copy.resize(segment_starts.back());
+                    segment_starts.pop_back();
                 }
                 directory = true;
             }
@@ -302,50 +307,45 @@ namespace Url
             }
             else
             {
-                segments.push_back(segment);
+                segment_starts.push_back(copy.length());
+                copy.append(1, '/');
+                copy.append(path_, previous, index - previous);
                 directory = false;
             }
         }
 
         // Handle the last segment
-        std::string segment = path_.substr(previous);
-        if (segment.empty() || segment.compare(".") == 0)
+        index = path_.length();
+        if (previous == path_.length())
         {
             directory = true;
         }
-        else if (segment.compare("..") == 0)
+        else if ((index - previous == 1) && path_[previous] == '.')
         {
-            if (!segments.empty())
+            directory = true;
+        }
+        else if ((index - previous == 2)
+                && path_[previous] == '.'
+                && path_[previous + 1] == '.')
+        {
+            if (!segment_starts.empty())
             {
-                segments.pop_back();
+                copy.resize(segment_starts.back());
             }
             directory = true;
         }
         else
         {
-            segments.push_back(segment);
+            copy.append(1, '/');
+            copy.append(path_, previous, index - previous);
             directory = false;
         }
 
-        // Assemble the new path
-        if (segments.empty())
+        if (directory)
         {
-            path_ = directory ? "/" : "";
+            copy.append(1, '/');
         }
-        else
-        {
-            std::string copy;
-            for (auto it = segments.begin(); it != segments.end(); ++it)
-            {
-                copy.append("/");
-                copy.append(*it);
-            }
-            if (directory)
-            {
-                copy.append("/");
-            }
-            path_ = copy;
-        }
+        path_.assign(copy);
 
         return *this;
     }
