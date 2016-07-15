@@ -18,8 +18,11 @@ debug/url.o: src/url.cpp include/url.h
 bench: bench.cpp release
 	$(CPP) $(CPPOPTS) $(RELEASE_OPTS) -o $@ $< release/url.o
 
-run-tests: test.cpp debug
-	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ $< debug/url.o -lgtest -lpthread
+test/%.o: test/%.cpp
+	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ -c $<
+
+run-tests: test/test-all.o test/test-url.o debug/url.o
+	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ $^ -lgtest -lpthread
 
 .PHONY: test
 test: run-tests
