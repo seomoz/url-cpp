@@ -63,6 +63,17 @@ namespace Url
 
         const std::string& userinfo() const { return userinfo_; }
 
+        /*********************
+         * Chainable methods *
+         *********************/
+
+        /**
+         * Make the path absolute.
+         *
+         * Evaluate '.', '..', and excessive slashes.
+         */
+        Url& abspath();
+
     private:
         // Private, unimplemented to prevent use.
         Url();

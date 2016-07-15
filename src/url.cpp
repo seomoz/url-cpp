@@ -155,4 +155,83 @@ namespace Url
         str.resize(length);
     }
 
+    Url& Url::abspath()
+    {
+        std::vector<std::string> segments;
+        bool directory = false;
+        size_t previous = 0;
+        for (size_t index = path_.find('/')
+            ; index != std::string::npos
+            ; previous = index + 1, index = path_.find('/', index + 1))
+        {
+            std::string segment = path_.substr(previous, index - previous);
+
+            if (segment.empty())
+            {
+                // Skip empty segments
+                continue;
+            }
+
+            if ((index - previous == 2) && segment.compare("..") == 0)
+            {
+                if (!segments.empty())
+                {
+                    segments.pop_back();
+                }
+                directory = true;
+            }
+            else if ((index - previous == 1) && path_[previous] == '.')
+            {
+                directory = true;
+            }
+            else
+            {
+                segments.push_back(segment);
+                directory = false;
+            }
+        }
+
+        // Handle the last segment
+        std::string segment = path_.substr(previous);
+        if (segment.empty() || segment.compare(".") == 0)
+        {
+            directory = true;
+        }
+        else if (segment.compare("..") == 0)
+        {
+            if (!segments.empty())
+            {
+                segments.pop_back();
+            }
+            directory = true;
+        }
+        else
+        {
+            segments.push_back(segment);
+            directory = false;
+        }
+
+        // Assemble the new path
+        if (segments.empty())
+        {
+            path_ = directory ? "/" : "";
+        }
+        else
+        {
+            std::string copy;
+            for (auto it = segments.begin(); it != segments.end(); ++it)
+            {
+                copy.append("/");
+                copy.append(*it);
+            }
+            if (directory)
+            {
+                copy.append("/");
+            }
+            path_ = copy;
+        }
+
+        return *this;
+    }
+
 };
