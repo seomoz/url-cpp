@@ -259,6 +259,9 @@ TEST(QueryTest, SanitizesQuery)
     EXPECT_EQ("a=1&b=2"    , Url::Url("http://foo.com/?a=1&&&&&&b=2"   ).query());
     EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/????foo=2"       ).query());
     EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/?foo=2&&&"       ).query());
+    EXPECT_EQ("query?"     , Url::Url("http://foo.com/?query?"         ).query());
+    EXPECT_EQ("repeats???q", Url::Url("http://foo.com/?repeats???q"    ).query());
+    EXPECT_EQ(""           , Url::Url("http://foo.com/?????"           ).query());
 }
 
 TEST(ParamTest, SanitizesParams)
