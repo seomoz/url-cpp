@@ -155,6 +155,70 @@ namespace Url
         str.resize(length);
     }
 
+    std::string Url::str() const
+    {
+        std::string result;
+
+        if (!scheme_.empty())
+        {
+            result.append(scheme_);
+            result.append("://");
+        }
+        else if (!host_.empty())
+        {
+            result.append("//");
+        }
+
+        if (!userinfo_.empty())
+        {
+            result.append(userinfo_);
+            result.append("@");
+        }
+
+        if (!host_.empty())
+        {
+            result.append(host_);
+        }
+        
+        if (port_)
+        {
+            result.append(":");
+            result.append(std::to_string(port_));
+        }
+
+        if (path_.empty())
+        {
+            if (!result.empty())
+            {
+                result.append("/");
+            }
+        }
+        else
+        {
+            result.append(path_);
+        }
+
+        if (!params_.empty())
+        {
+            result.append(";");
+            result.append(params_);
+        }
+
+        if (!query_.empty())
+        {
+            result.append("?");
+            result.append(query_);
+        }
+
+        if (!fragment_.empty())
+        {
+            result.append("#");
+            result.append(fragment_);
+        }
+
+        return result;
+    }
+
     Url& Url::abspath()
     {
         std::vector<std::string> segments;

@@ -13,6 +13,7 @@ TEST(ParseTest, RelativePath)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("foo", parsed.str());
 }
 
 TEST(ParseTest, RelativePathWithExtras)
@@ -26,6 +27,7 @@ TEST(ParseTest, RelativePathWithExtras)
     EXPECT_EQ("params", parsed.params());
     EXPECT_EQ("query", parsed.query());
     EXPECT_EQ("fragment", parsed.fragment());
+    EXPECT_EQ("foo;params?query#fragment", parsed.str());
 }
 
 TEST(ParseTest, FullUrl)
@@ -39,6 +41,7 @@ TEST(ParseTest, FullUrl)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://foo.com/path", parsed.str());
 }
 
 TEST(ParseTest, AbsoluteNoPath)
@@ -52,6 +55,7 @@ TEST(ParseTest, AbsoluteNoPath)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://foo.com/", parsed.str());
 }
 
 TEST(ParseTest, SchemeRelative)
@@ -65,6 +69,7 @@ TEST(ParseTest, SchemeRelative)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("//foo.com/path", parsed.str());
 }
 
 TEST(ParseTest, SchemeRelativeWithUserInfo)
@@ -78,6 +83,7 @@ TEST(ParseTest, SchemeRelativeWithUserInfo)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("//user:pass@foo.com/", parsed.str());
 }
 
 TEST(ParseTest, UserInfo)
@@ -91,6 +97,7 @@ TEST(ParseTest, UserInfo)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://user:pass@foo.com/", parsed.str());
 }
 
 /* These are all from Python */
@@ -105,6 +112,7 @@ TEST(ParseTest, TestFile)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("file:///tmp/junk.txt", parsed.str());
 }
 
 TEST(ParseTest, TestImap)
@@ -118,6 +126,7 @@ TEST(ParseTest, TestImap)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("imap://mail.python.org/mbox1", parsed.str());
 }
 
 TEST(ParseTest, TestMms)
@@ -131,6 +140,7 @@ TEST(ParseTest, TestMms)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("mms://wms.sys.hinet.net/cts/Drama/09006251100.asf", parsed.str());
 }
 
 TEST(ParseTest, TestNfs)
@@ -144,6 +154,7 @@ TEST(ParseTest, TestNfs)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("nfs://server/path/to/file.txt", parsed.str());
 }
 
 TEST(ParseTest, TestSvnOverSsh)
@@ -157,6 +168,7 @@ TEST(ParseTest, TestSvnOverSsh)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("svn+ssh://svn.zope.org/repos/main/ZConfig/trunk/", parsed.str());
 }
 
 TEST(ParseTest, TestGitOverSsh)
@@ -170,6 +182,7 @@ TEST(ParseTest, TestGitOverSsh)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("git+ssh://git@github.com/user/project.git", parsed.str());
 }
 
 TEST(ParseTest, TestUppercaseScheme)
@@ -183,6 +196,7 @@ TEST(ParseTest, TestUppercaseScheme)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("frag", parsed.fragment());
+    EXPECT_EQ("http://www.python.org/doc/#frag", parsed.str());
 }
 
 TEST(ParseTest, TestPortLeadingZero)
@@ -196,6 +210,7 @@ TEST(ParseTest, TestPortLeadingZero)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://www.python.org:80/", parsed.str());
 }
 
 TEST(ParseTest, TestEmptyPort)
@@ -209,6 +224,7 @@ TEST(ParseTest, TestEmptyPort)
     EXPECT_EQ("", parsed.params());
     EXPECT_EQ("", parsed.query());
     EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://www.python.org/", parsed.str());
 }
 
 TEST(ParseTest, TestIllegalPort)

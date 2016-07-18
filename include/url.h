@@ -63,6 +63,11 @@ namespace Url
 
         const std::string& userinfo() const { return userinfo_; }
 
+        /**
+         * Get a new string representation of the URL.
+         **/
+        std::string str() const;
+
         /*********************
          * Chainable methods *
          *********************/
