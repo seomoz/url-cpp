@@ -121,9 +121,16 @@ namespace Url
             index = path_.find('?');
             if (index != std::string::npos)
             {
-                query_ = path_.substr(index + 1);
-                remove_repeats(query_, '?');
-                remove_repeats(query_, '&');
+                size_t start = path_.find_first_not_of('?', index + 1);
+                if (start != std::string::npos)
+                {
+                    query_ = path_.substr(start);
+                    remove_repeats(query_, '&');
+                }
+                else
+                {
+                    query_ = "";
+                }
                 path_.resize(index);
             }
 
