@@ -22,8 +22,34 @@ namespace Url
     const std::string Url::QUERY = Url::PCHAR + "/?";
     const std::string Url::FRAGMENT = Url::PCHAR + "/?";
     const std::string Url::USERINFO = Url::UNRESERVED + Url::SUB_DELIMS + ":";
+    const std::string Url::HEX = "0123456789ABCDEF";
     const std::string Url::SCHEME =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-.";
+    const std::vector<signed char> Url::HEX_TO_DEC = {
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1,
+
+        -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    };
 
     Url::Url(const std::string& url): port_(0)
     {
@@ -366,6 +392,69 @@ namespace Url
         }
 
         return *this;
+    }
+
+    Url& Url::escape(bool strict)
+    {
+        escape(path_, PATH, strict);
+        escape(query_, QUERY, strict);
+        escape(params_, QUERY, strict);
+        escape(userinfo_, USERINFO, strict);
+        return *this;
+    }
+
+    void Url::escape(std::string& str, const std::string& safe, bool strict)
+    {
+        std::string copy(str);
+        size_t dest = 0;
+        // Allocate space pessimistically -- if every entity is expanded, it will take 3x
+        // the space.
+        str.resize(str.length() * 3);
+        for (size_t src = 0; src < copy.length(); ++src)
+        {
+            if (copy[src] == '%' && (copy.length() - src) >= 2)
+            {
+                // Read ahead to see if there's a valid escape sequence. If not, treat
+                // this like a normal character.
+                if (HEX_TO_DEC[copy[src+1]] != -1 && HEX_TO_DEC[copy[src+2]] != -1)
+                {
+                    int value = (
+                        HEX_TO_DEC[copy[src+1]] * 16 + HEX_TO_DEC[copy[src+2]]);
+
+                    // In strict mode, we can only unescape parameters if they are both
+                    // safe and node reserved
+                    if (!strict || (strict
+                        && (safe.find(value) != std::string::npos)
+                        && (RESERVED.find(value) == std::string::npos)))
+                    {
+                        // Replace src + 2 with that byte, advance src to consume it and
+                        // continue.
+                        src += 2;
+                        copy[src] = value;
+                    }
+                    else
+                    {
+                        str[dest++] = copy[src++];
+                        str[dest++] = ::toupper(copy[src++]);
+                        str[dest++] = ::toupper(copy[src]);
+                        continue;
+                    }
+                }
+            }
+
+            if (safe.find(copy[src]) == std::string::npos)
+            {
+                // Not safe -- replace with %XX
+                str[dest++] = '%';
+                str[dest++] = HEX[(copy[src] >> 4) & 0xF];
+                str[dest++] = HEX[copy[src] & 0xF];
+            }
+            else
+            {
+                str[dest++] = copy[src];
+            }
+        }
+        str.resize(dest);
     }
 
 };

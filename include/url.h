@@ -31,6 +31,7 @@ namespace Url
         const static std::string USERINFO;
         const static std::string HEX;
         const static std::string SCHEME;
+        const static std::vector<signed char> HEX_TO_DEC;
 
         explicit Url(const std::string& url);
 
@@ -92,6 +93,14 @@ namespace Url
          */
         Url& relative_to(const Url& other);
 
+        /**
+         * Ensure that the path, params, query, and userinfo are properly escaped.
+         *
+         * In 'strict' mode, only entities that are both safe and not reserved characters
+         * are unescaped. In non-strict mode, entities that are safe are unescaped.
+         */
+        Url& escape(bool strict=false);
+
     private:
         // Private, unimplemented to prevent use.
         Url();
@@ -100,6 +109,11 @@ namespace Url
          * Remove repeated, leading, and trailing instances of chr from the string.
          */
         void remove_repeats(std::string& str, const char chr);
+
+        /**
+         * Ensure all the provided characters are escaped if necessary
+         */
+        void escape(std::string& str, const std::string& safe, bool strict);
 
         std::string scheme_;
         std::string host_;
