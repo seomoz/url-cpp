@@ -305,4 +305,67 @@ namespace Url
         return *this;
     }
 
+    Url& Url::relative_to(const Url& other)
+    {
+        // Support scheme-relative URLs
+        if (scheme_.empty())
+        {
+            scheme_ = other.scheme_;
+        }
+
+        // If this is an absolute URL (or scheme-relative), return early
+        if (!host_.empty()) {
+            return *this;
+        }
+
+        // If it's not an absolute URL, we need to copy the other host and port
+        host_ = other.host_;
+        port_ = other.port_;
+        userinfo_ = other.userinfo_;
+
+        // If the path portion is absolute, then bail out early.
+        if (!path_.empty() && path_.front() == '/')
+        {
+            return *this;
+        }
+
+        // Otherwise, this is a path that need to be evaluated relative to the other. If
+        // there is no '/', then we just keep our current path if it's not empty.
+        if (path_.empty())
+        {
+            if (params_.empty())
+            {
+                path_ = other.path_;
+                params_ = other.params_;
+                if (query_.empty())
+                {
+                    query_ = other.query_;
+                }
+            }
+            else
+            {
+                path_ = other.path_.substr(0, other.path_.rfind('/') + 1);
+            }
+
+            if (fragment_.empty())
+            {
+                fragment_ = other.fragment_;
+            }
+        }
+        else
+        {
+            size_t index = other.path_.rfind('/');
+            if (index != std::string::npos)
+            {
+                path_ = other.path_.substr(0, index + 1) + path_;
+            }
+            else if (!host_.empty())
+            {
+                path_ = "/" + path_;
+            }
+        }
+
+        return *this;
+    }
+
 };
