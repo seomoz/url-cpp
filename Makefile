@@ -23,15 +23,15 @@ bench: bench.cpp release
 test/%.o: test/%.cpp
 	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ -c $<
 
-run-tests: test/test-all.o test/test-url.o $(DEBUG_LIBS)
+test-all: test/test-all.o test/test-url.o $(DEBUG_LIBS)
 	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ $^ -lgtest -lpthread
 
 .PHONY: test
-test: run-tests
-	./run-tests
+test: test-all
+	./test-all
 	./scripts/check-coverage.sh $(PWD)
 
 clean:
 	find . -name '*.o' -o -name '*.gcda' -o -name '*.gcno' -o -name '*.gcov' \
 		| xargs --no-run-if-empty rm
-	rm -f run-tests bench
+	rm -f test-all bench
