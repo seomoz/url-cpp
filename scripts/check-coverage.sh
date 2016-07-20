@@ -15,7 +15,7 @@ results=`gcovr \
     --exclude-unreachable-branches \
     --output=/dev/null \
     --print-summary \
-    --exclude test.cpp`
+    --exclude test`
 
 lines=`echo ${results} | sed -E 's#^.*lines: ([0-9]+)(\.[0-9]+)?%.+$#\1#'`
 branches=`echo ${results} | sed -E 's#^.*branches: ([0-9]+)(\.[0-9]+)?%.+$#\1#'`
