@@ -24,6 +24,11 @@ namespace Url
         typedef unsigned char char_t;
 
         /**
+         * The highest allowed codepoint.
+         */
+        static const codepoint_t MAX_CODEPOINT = 0x10FFFF;
+
+        /**
          * Consume up to the last byte of the sequence, returning the codepoint.
          */
         static codepoint_t readCodepoint(
