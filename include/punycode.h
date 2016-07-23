@@ -12,65 +12,80 @@
 namespace Url
 {
 
-    struct Punycoder
+    namespace Punycode
     {
         typedef Utf8::codepoint_t punycode_uint;
 
-        static const unsigned int BASE          = 36;
-        static const unsigned int TMIN          = 1;
-        static const unsigned int TMAX          = 26;
-        static const unsigned int SKEW          = 38;
-        static const unsigned int DAMP          = 700;
-        static const unsigned int INITIAL_BIAS  = 72;
-        static const unsigned int INITIAL_N     = 128;
+        const unsigned int BASE          = 36;
+        const unsigned int TMIN          = 1;
+        const unsigned int TMAX          = 26;
+        const unsigned int SKEW          = 38;
+        const unsigned int DAMP          = 700;
+        const unsigned int INITIAL_BIAS  = 72;
+        const unsigned int INITIAL_N     = 128;
 
         // Codepoints to their base-36 value
-        static const std::vector<int8_t> BASIC_TO_DIGIT;
-        static const std::string DIGIT_TO_BASIC;
+        const std::vector<int8_t> BASIC_TO_DIGIT = {
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1, -1, -1, -1, -1, -1,
+
+            -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
+
+            -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
+
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        };
+        const std::string DIGIT_TO_BASIC = "abcdefghijklmnopqrstuvwxyz0123456789";
 
         // The highest codepoint in unicode
-        static const punycode_uint MAX_PUNYCODE_UINT = std::numeric_limits<punycode_uint>::max();
+        const punycode_uint MAX_PUNYCODE_UINT = std::numeric_limits<punycode_uint>::max();
         //Utf8::MAX_CODEPOINT;
         //std::numeric_limits<punycode_uint>::max();
 
         /**
          * Replace utf-8-encoded str into punycode.
          */
-        static std::string& encode(std::string& str);
+        std::string& encode(std::string& str);
 
         /**
          * Create a new punycoded string from utf-8-encoded input.
          */
-        static std::string encode(const std::string& str)
-        {
-            std::string result(str);
-            encode(result);
-            return result;
-        }
+        std::string encode(const std::string& str);
 
         /**
          * Replace punycoded str into utf-8-encoded.
          */
-        static std::string& decode(std::string& str);
+        std::string& decode(std::string& str);
 
         /**
          * Create a new utf-8-encoded string from punycoded input.
          */
-        static std::string decode(const std::string& str)
-        {
-            std::string result(str);
-            decode(result);
-            return result;
-        }
+        std::string decode(const std::string& str);
 
         /**
          * Determine if a string needs punycoding.
          */
-        static bool needsPunycoding(const std::string& str);
+        bool needsPunycoding(const std::string& str);
 
-    private:
-
-        static punycode_uint adapt(
+        /**
+         * Internal function for calculating bias.
+         */
+        punycode_uint adapt(
             punycode_uint delta, punycode_uint numpoints, bool firsttime);
 
     };

@@ -8,36 +8,7 @@
 namespace Url
 {
 
-    const std::vector<int8_t> Punycoder::BASIC_TO_DIGIT =
-    {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1, -1, -1, -1, -1, -1,
-
-        -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
-
-        -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-    };
-
-    const std::string Punycoder::DIGIT_TO_BASIC = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-    std::string& Punycoder::encode(std::string& str)
+    std::string& Punycode::encode(std::string& str)
     {
         // Pseudocode copied from https://tools.ietf.org/html/rfc3492#section-6.3
         //
@@ -159,7 +130,14 @@ namespace Url
         return str;
     }
 
-    std::string& Punycoder::decode(std::string& str)
+    std::string Punycode::encode(const std::string& str)
+    {
+        std::string result(str);
+        encode(result);
+        return result;
+    }
+
+    std::string& Punycode::decode(std::string& str)
     {
         // Pseudocode copied from https://tools.ietf.org/html/rfc3492#section-6.2
         //
@@ -307,7 +285,14 @@ namespace Url
         return str;
     }
 
-    bool Punycoder::needsPunycoding(const std::string& str)
+    std::string Punycode::decode(const std::string& str)
+    {
+        std::string result(str);
+        decode(result);
+        return result;
+    }
+
+    bool Punycode::needsPunycoding(const std::string& str)
     {
         return std::any_of(
             str.begin(),
@@ -315,7 +300,7 @@ namespace Url
             [](char i){ return static_cast<unsigned char>(i) & 0x80; });
     }
 
-    Punycoder::punycode_uint Punycoder::adapt(
+    Punycode::punycode_uint Punycode::adapt(
         punycode_uint delta, punycode_uint numpoints, bool firsttime)
     {
         // Psuedocode from https://tools.ietf.org/html/rfc3492#section-6.1
