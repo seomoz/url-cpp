@@ -70,7 +70,7 @@ namespace Url
 
     std::string& Utf8::writeCodepoint(std::string& str, Utf8::codepoint_t value)
     {
-        if (value > 0x1FFFFF)
+        if (value > MAX_CODEPOINT)
         {
             throw std::invalid_argument("Code point too high.");
         }

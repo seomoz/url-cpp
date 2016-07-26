@@ -2,8 +2,8 @@ CPP          = g++
 CPPOPTS      = -Wall -Werror -std=c++11 -Iinclude/
 DEBUG_OPTS   = -fprofile-arcs -ftest-coverage -O0 -g -fPIC
 RELEASE_OPTS = -O3
-DEBUG_LIBS   = debug/url.o debug/utf8.o
-RELEASE_LIBS = release/url.o release/utf8.o
+DEBUG_LIBS   = debug/url.o debug/utf8.o debug/punycode.o
+RELEASE_LIBS = release/url.o release/utf8.o release/punycode.o
 
 release: $(RELEASE_LIBS)
 
@@ -23,7 +23,7 @@ bench: bench.cpp release
 test/%.o: test/%.cpp
 	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ -c $<
 
-test-all: test/test-all.o test/test-url.o test/test-utf8.o $(DEBUG_LIBS)
+test-all: test/test-all.o test/test-url.o test/test-utf8.o test/test-punycode.o $(DEBUG_LIBS)
 	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ $^ -lgtest -lpthread
 
 .PHONY: test
