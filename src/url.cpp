@@ -12,20 +12,28 @@ namespace Url
 {
 
     /* Character classes */
-    const std::string Url::GEN_DELIMS = ":/?#[]@";
-    const std::string Url::SUB_DELIMS = "!$&'()*+,;=";
-    const std::string Url::ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const std::string Url::DIGIT = "0123456789";
-    const std::string Url::UNRESERVED = Url::ALPHA + Url::DIGIT + "-._~";
-    const std::string Url::RESERVED = Url::GEN_DELIMS + Url::SUB_DELIMS;
-    const std::string Url::PCHAR = Url::UNRESERVED + Url::SUB_DELIMS + ":@";
-    const std::string Url::PATH = Url::PCHAR + "/";
-    const std::string Url::QUERY = Url::PCHAR + "/?";
-    const std::string Url::FRAGMENT = Url::PCHAR + "/?";
-    const std::string Url::USERINFO = Url::UNRESERVED + Url::SUB_DELIMS + ":";
-    const std::string Url::HEX = "0123456789ABCDEF";
-    const std::string Url::SCHEME =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-.";
+    const CharacterClass Url::GEN_DELIMS(":/?#[]@");
+    const CharacterClass Url::SUB_DELIMS("!$&'()*+,;=");
+    const CharacterClass Url::DIGIT("0123456789");
+    const CharacterClass Url::ALPHA(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+    const CharacterClass Url::UNRESERVED(
+        Url::ALPHA.chars() + Url::DIGIT.chars() + "-._~");
+    const CharacterClass Url::RESERVED(
+        Url::GEN_DELIMS.chars() + Url::SUB_DELIMS.chars());
+    const CharacterClass Url::PCHAR(
+        Url::UNRESERVED.chars() + Url::SUB_DELIMS.chars() + ":@");
+    const CharacterClass Url::PATH(
+        Url::PCHAR.chars() + "/");
+    const CharacterClass Url::QUERY(
+        Url::PCHAR.chars() + "/?");
+    const CharacterClass Url::FRAGMENT(
+        Url::PCHAR.chars() + "/?");
+    const CharacterClass Url::USERINFO(
+        Url::UNRESERVED.chars() + Url::SUB_DELIMS.chars() + ":");
+    const CharacterClass Url::HEX("0123456789ABCDEF");
+    const CharacterClass Url::SCHEME(
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-.");
     const std::vector<signed char> Url::HEX_TO_DEC = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -63,12 +71,18 @@ namespace Url
         if (index != std::string::npos)
         {
             // All the characters in our would-be scheme must be in SCHEME
-            if (url.substr(0, index).find_first_not_of(SCHEME) == std::string::npos)
+            if (std::all_of(
+                    url.begin(),
+                    url.begin() + index,
+                    [](char c) { return SCHEME(c); } ))
             {
                 // If there is nothing after the : or there are any non-digits, this is
                 // the scheme
                 if ((index + 1) >= url.length()
-                    || url.find_first_not_of(DIGIT, index + 1) != std::string::npos)
+                    || std::any_of(
+                        url.begin() + index + 1,
+                        url.end(),
+                        [](char c) { return !DIGIT(c); }))
                 {
                     scheme_ = url.substr(0, index);
                     std::transform(
@@ -408,7 +422,7 @@ namespace Url
         return *this;
     }
 
-    void Url::escape(std::string& str, const std::string& safe, bool strict)
+    void Url::escape(std::string& str, const CharacterClass& safe, bool strict)
     {
         std::string copy(str);
         size_t dest = 0;
@@ -428,9 +442,7 @@ namespace Url
 
                     // In strict mode, we can only unescape parameters if they are both
                     // safe and node reserved
-                    if (!strict || (strict
-                        && (safe.find(value) != std::string::npos)
-                        && (RESERVED.find(value) == std::string::npos)))
+                    if (!strict || (strict && safe(value) && !RESERVED(value)))
                     {
                         // Replace src + 2 with that byte, advance src to consume it and
                         // continue.
@@ -447,12 +459,12 @@ namespace Url
                 }
             }
 
-            if (safe.find(copy[src]) == std::string::npos)
+            if (!safe(copy[src]))
             {
                 // Not safe -- replace with %XX
                 str[dest++] = '%';
-                str[dest++] = HEX[(copy[src] >> 4) & 0xF];
-                str[dest++] = HEX[copy[src] & 0xF];
+                str[dest++] = HEX.chars()[(copy[src] >> 4) & 0xF];
+                str[dest++] = HEX.chars()[copy[src] & 0xF];
             }
             else
             {

@@ -15,22 +15,51 @@ namespace Url
         UrlParseException(const std::string& message) : std::logic_error(message) {}
     };
 
+    struct CharacterClass
+    {
+        CharacterClass(const std::string& chars) : chars_(chars), map_(256, false)
+        {
+            for (auto it = chars_.begin(); it != chars_.end(); ++it)
+            {
+                map_[static_cast<size_t>(*it)] = true;
+            }
+        }
+
+        bool operator()(char c) const
+        {
+            return map_[static_cast<unsigned char>(c)];
+        }
+
+        const std::string& chars() const
+        {
+            return chars_;
+        }
+
+    private:
+        // Private, unimplemented to prevent use
+        CharacterClass();
+        CharacterClass(const CharacterClass& other);
+
+        std::string chars_;
+        std::vector<bool> map_;
+    };
+
     struct Url
     {
         /* Character classes */
-        const static std::string GEN_DELIMS;
-        const static std::string SUB_DELIMS;
-        const static std::string ALPHA;
-        const static std::string DIGIT;
-        const static std::string UNRESERVED;
-        const static std::string RESERVED;
-        const static std::string PCHAR;
-        const static std::string PATH;
-        const static std::string QUERY;
-        const static std::string FRAGMENT;
-        const static std::string USERINFO;
-        const static std::string HEX;
-        const static std::string SCHEME;
+        const static CharacterClass GEN_DELIMS;
+        const static CharacterClass SUB_DELIMS;
+        const static CharacterClass ALPHA;
+        const static CharacterClass DIGIT;
+        const static CharacterClass UNRESERVED;
+        const static CharacterClass RESERVED;
+        const static CharacterClass PCHAR;
+        const static CharacterClass PATH;
+        const static CharacterClass QUERY;
+        const static CharacterClass FRAGMENT;
+        const static CharacterClass USERINFO;
+        const static CharacterClass HEX;
+        const static CharacterClass SCHEME;
         const static std::vector<signed char> HEX_TO_DEC;
         const static std::unordered_map<std::string, int> PORTS;
 
@@ -147,7 +176,7 @@ namespace Url
         /**
          * Ensure all the provided characters are escaped if necessary
          */
-        void escape(std::string& str, const std::string& safe, bool strict);
+        void escape(std::string& str, const CharacterClass& safe, bool strict);
 
         /**
          * Remove any params that match entries in the blacklist.
