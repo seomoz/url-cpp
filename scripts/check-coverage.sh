@@ -15,6 +15,7 @@ results=`gcovr \
     --exclude-unreachable-branches \
     --output=/dev/null \
     --print-summary \
+    --object-directory=${root} \
     --exclude test`
 
 lines=`echo ${results} | sed -E 's#^.*lines: ([0-9]+)(\.[0-9]+)?%.+$#\1#'`
