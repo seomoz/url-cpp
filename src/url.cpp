@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
+#include <iterator>
+#include <sstream>
 
 #include "url.h"
 #include "punycode.h"
@@ -525,7 +527,45 @@ namespace Url
 
     Url& Url::sort_query()
     {
+        split_sort_join(query_, '&');
+        split_sort_join(params_, ';');
         return *this;
+    }
+
+    void Url::split_sort_join(std::string& str, const char glue)
+    {
+        // Return early if empty
+        if (str.empty())
+        {
+            return;
+        }
+
+        // Split
+        std::vector<std::string> pieces;
+        std::stringstream stream(str);
+        std::string item;
+        while (getline(stream, item, glue))
+        {
+            pieces.push_back(item);
+        }
+
+        // Return early if it's just a single element
+        if (pieces.size() == 1)
+        {
+            return;
+        }
+
+        // Sort
+        std::sort(pieces.begin(), pieces.end());
+
+        // Join (at this point we know that there's at least one element)
+        std::stringstream output;
+        for (auto it = pieces.begin(); it != (pieces.end() - 1); ++it)
+        {
+            output << *it << glue;
+        }
+        output << pieces.back();
+        str.assign(output.str());
     }
 
     Url& Url::remove_default_port()

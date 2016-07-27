@@ -190,6 +190,11 @@ namespace Url
          */
         void remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator);
 
+        /**
+         * Split the provided string by char, sort, join by char.
+         */
+        void split_sort_join(std::string& str, const char glue);
+
         std::string scheme_;
         std::string host_;
         int port_;
