@@ -752,6 +752,33 @@ TEST(EscapeTest, StrictFromUrlPy)
         Url::Url("http://user%3apass@foo.com/").escape(true).str());
 }
 
+TEST(UnescapeTest, KeepUnescaped)
+{
+    EXPECT_EQ("this's a test",
+        Url::Url("this's%20a%20test").unescape().str());
+}
+
+TEST(UnescapeTest, IncompleteEntity)
+{
+    EXPECT_EQ("incomplete entity %2",
+        Url::Url("incomplete%20entity%20%2").unescape().str());
+}
+
+TEST(UnescapeTest, NonHexEntity)
+{
+    EXPECT_EQ("a non hex %gh entity",
+        Url::Url("a%20non%20hex%20%gh%20entity").unescape().str());
+}
+
+TEST(UnescapeTest, UnescapesEverything)
+{
+    std::string escaped =
+        "http://hei%C3%9Fe@domain.com/s%C3%B8me%3Bw%C3%A9ird%3Fex%C3%A5mple";
+    std::string unescaped =
+        "http://hei\xc3\x9f" "e@domain.com/s\xc3\xb8me;w\xc3\xa9ird?ex\xc3\xa5mple";
+    EXPECT_EQ(unescaped, Url::Url(escaped).unescape().str());
+}
+
 TEST(FilterParams, FiltersQuery)
 {
     std::unordered_set<std::string> blacklist = {"c"};

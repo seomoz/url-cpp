@@ -476,6 +476,11 @@ namespace Url
         str.resize(dest);
     }
 
+    Url& Url::unescape()
+    {
+        return *this;
+    }
+
     Url& Url::deparam(const std::unordered_set<std::string>& blacklist)
     {
         remove_params(params_, blacklist, ';');
