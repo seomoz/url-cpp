@@ -140,6 +140,13 @@ namespace Url
         Url& deparam(const std::unordered_set<std::string>& blacklist);
 
         /**
+         * Put queries and params in sorted order.
+         *
+         * To ensure consistent comparisons, escape should be called beforehand.
+         */
+        Url& sort_query();
+
+        /**
          * Remove the port if it's the default for the scheme.
          */
         Url& remove_default_port();
@@ -182,6 +189,11 @@ namespace Url
          * Remove any params that match entries in the blacklist.
          */
         void remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator);
+
+        /**
+         * Split the provided string by char, sort, join by char.
+         */
+        void split_sort_join(std::string& str, const char glue);
 
         std::string scheme_;
         std::string host_;

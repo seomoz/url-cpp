@@ -727,6 +727,36 @@ TEST(FilterParams, CaseInsensitivity)
     EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
 }
 
+TEST(SortQueryTest, SortsQueries)
+{
+    EXPECT_EQ("http://foo.com/?a=1&b=2&c=3",
+        Url::Url("http://foo.com/?b=2&c=3&a=1").sort_query().str());
+}
+
+TEST(SortQueryTest, SortsParams)
+{
+    EXPECT_EQ("http://foo.com/;a=1;b=2;c=3",
+        Url::Url("http://foo.com/;b=2;c=3;a=1").sort_query().str());
+}
+
+TEST(SortQueryTest, Empty)
+{
+    EXPECT_EQ("http://foo.com/",
+        Url::Url("http://foo.com/").sort_query().str());
+}
+
+TEST(SortQueryTest, SingleQuery)
+{
+    EXPECT_EQ("http://foo.com/?a=7",
+        Url::Url("http://foo.com/?a=7").sort_query().str());
+}
+
+TEST(SortQueryTest, SingleParam)
+{
+    EXPECT_EQ("http://foo.com/;a=7",
+        Url::Url("http://foo.com/;a=7").sort_query().str());
+}
+
 TEST(RemoveDefaultPortTest, HttpTest)
 {
     EXPECT_EQ("http://foo.com/",
