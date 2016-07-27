@@ -140,6 +140,13 @@ namespace Url
         Url& deparam(const std::unordered_set<std::string>& blacklist);
 
         /**
+         * Put queries and params in sorted order.
+         *
+         * To ensure consistent comparisons, escape should be called beforehand.
+         */
+        Url& sort_query();
+
+        /**
          * Remove the port if it's the default for the scheme.
          */
         Url& remove_default_port();

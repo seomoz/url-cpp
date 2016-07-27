@@ -523,6 +523,11 @@ namespace Url
         str.assign(copy);
     }
 
+    Url& Url::sort_query()
+    {
+        return *this;
+    }
+
     Url& Url::remove_default_port()
     {
         if (port_ && !scheme_.empty())
