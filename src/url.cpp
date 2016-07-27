@@ -478,7 +478,40 @@ namespace Url
 
     Url& Url::unescape()
     {
+        unescape(path_);
+        unescape(query_);
+        unescape(params_);
+        unescape(userinfo_);
         return *this;
+    }
+
+    void Url::unescape(std::string& str)
+    {
+        std::string copy(str);
+        size_t dest = 0;
+        for (size_t src = 0; src < copy.length(); ++src, ++dest)
+        {
+            if (copy[src] == '%' && (copy.length() - src) >= 2)
+            {
+                // Read ahead to see if there's a valid escape sequence. If not, treat
+                // this like a normal character.
+                if (HEX_TO_DEC[copy[src+1]] != -1 && HEX_TO_DEC[copy[src+2]] != -1)
+                {
+                    int value = (
+                        HEX_TO_DEC[copy[src+1]] * 16 + HEX_TO_DEC[copy[src+2]]);
+
+                    // Replace src + 2 with that byte, advance src to consume it and
+                    // continue.
+                    src += 2;
+                    str[dest] = value;
+                    continue;
+                }
+            }
+            
+            // Either not a % or an incomplete entity
+            str[dest] = copy[src];
+        }
+        str.resize(dest);
     }
 
     Url& Url::deparam(const std::unordered_set<std::string>& blacklist)

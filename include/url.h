@@ -231,6 +231,11 @@ namespace Url
         void escape(std::string& str, const CharacterClass& safe, bool strict);
 
         /**
+         * Unescape entities in the provided string
+         */
+        void unescape(std::string& str);
+
+        /**
          * Remove any params that match entries in the blacklist.
          */
         void remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator);
