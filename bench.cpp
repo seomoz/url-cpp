@@ -44,7 +44,8 @@ int main(int argc, char* argv[]) {
     size_t runs = 5;
 
     Url::Url base_url(base);
-    std::string full = Url::Url(relative).relative_to(base_url).str();
+    Url::Url full_url = Url::Url(relative).relative_to(base_url);
+    std::string full = full_url.str();
 
     bench("parse", count, runs, [full]() {
         Url::Url parsed(full);
@@ -64,5 +65,9 @@ int main(int argc, char* argv[]) {
 
     bench("parse + punycode", count, runs, [full]() {
         Url::Url(full).punycode();
+    });
+
+    bench("punycode + unpunycode", count, runs, [full_url]() mutable {
+        full_url.punycode().unpunycode();
     });
 }
