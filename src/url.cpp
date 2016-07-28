@@ -539,7 +539,7 @@ namespace Url
                             const deparam_predicate& predicate,
                             char sep)
     {
-        std::vector<std::string> pieces;
+        std::string copy;
         std::string piece;
         std::string name;
         std::string value;
@@ -559,7 +559,8 @@ namespace Url
 
             if (!predicate(name, value))
             {
-                pieces.push_back(piece);
+                copy.append(copy.empty() ? 0 : 1, sep);
+                copy.append(piece);
             }
         }
 
@@ -576,20 +577,11 @@ namespace Url
 
             if (!predicate(name, value))
             {
-                pieces.push_back(piece);
+                copy.append(copy.empty() ? 0 : 1, sep);
+                copy.append(piece);
             }
         }
 
-        std::string copy;
-        for (auto it = pieces.begin(); it != pieces.end();)
-        {
-            copy.append(*it);
-            for (++it; it != pieces.end(); ++it)
-            {
-                copy.append(1, sep);
-                copy.append(*it);
-            }
-        }
         str.assign(copy);
     }
 
