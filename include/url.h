@@ -172,6 +172,11 @@ namespace Url
         Url& escape(bool strict=false);
 
         /**
+         * Unescape all entities in the path, params, query, and userinfo.
+         */
+        Url& unescape();
+
+        /**
          * Remove any params or queries that appear in the blacklist.
          *
          * The blacklist should contain only lowercased strings, and the comparison is
@@ -224,6 +229,11 @@ namespace Url
          * Ensure all the provided characters are escaped if necessary
          */
         void escape(std::string& str, const CharacterClass& safe, bool strict);
+
+        /**
+         * Unescape entities in the provided string
+         */
+        void unescape(std::string& str);
 
         /**
          * Remove any params that match entries in the blacklist.
