@@ -75,24 +75,64 @@ namespace Url
             , fragment_(other.fragment_)
             , userinfo_(other.userinfo_) { }
 
-        /**************************
-         * Component-wise access. *
-         **************************/
+        /**************************************
+         * Component-wise access and setting. *
+         **************************************/
         const std::string& scheme() const { return scheme_; }
+        Url& setScheme(const std::string& s)
+        {
+            scheme_ = s;
+            return *this;
+        }
 
         const std::string& host() const { return host_; }
+        Url& setHost(const std::string& s)
+        {
+            host_ = s;
+            return *this;
+        }
 
         const int port() const { return port_; }
+        Url& setPort(int i)
+        {
+            port_ = i;
+            return *this;
+        }
 
         const std::string& path() const { return path_; }
+        Url& setPath(const std::string& s)
+        {
+            path_ = s;
+            return *this;
+        }
 
         const std::string& params() const { return params_; }
+        Url& setParams(const std::string& s)
+        {
+            params_ = s;
+            return *this;
+        }
 
         const std::string& query() const { return query_; }
+        Url& setQuery(const std::string& s)
+        {
+            query_ = s;
+            return *this;
+        }
 
         const std::string& fragment() const { return fragment_; }
+        Url& setFragment(const std::string& s)
+        {
+            fragment_ = s;
+            return *this;
+        }
 
         const std::string& userinfo() const { return userinfo_; }
+        Url& setUserinfo(const std::string& s)
+        {
+            userinfo_ = s;
+            return *this;
+        }
 
         /**
          * Get a new string representation of the URL.

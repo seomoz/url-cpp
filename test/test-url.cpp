@@ -247,6 +247,54 @@ TEST(ParseTest, TestPortNotNumber)
     ASSERT_THROW(Url::Url("http://www.python.org:80hello/"), Url::UrlParseException);
 }
 
+TEST(SetAttributesTest, Scheme)
+{
+    EXPECT_EQ("https://host.name/",
+        Url::Url("http://host.name/").setScheme("https").str());
+}
+
+TEST(SetAttributesTest, Userinfo)
+{
+    EXPECT_EQ("http://name@host.name/",
+        Url::Url("http://user@host.name/").setUserinfo("name").str());
+}
+
+TEST(SetAttributesTest, Host)
+{
+    EXPECT_EQ("http://new.host/",
+        Url::Url("http://old.host/").setHost("new.host").str());
+}
+
+TEST(SetAttributesTest, Port)
+{
+    EXPECT_EQ("http://host.name:8080/",
+        Url::Url("http://host.name/").setPort(8080).str());
+}
+
+TEST(SetAttributesTest, Path)
+{
+    EXPECT_EQ("http://host.name/new/path",
+        Url::Url("http://host.name/old/path").setPath("/new/path").str());
+}
+
+TEST(SetAttributesTest, Params)
+{
+    EXPECT_EQ("http://host.name/;new;params",
+        Url::Url("http://host.name/;old;params").setParams("new;params").str());
+}
+
+TEST(SetAttributesTest, Query)
+{
+    EXPECT_EQ("http://host.name/?new=query",
+        Url::Url("http://host.name/?old=query").setQuery("new=query").str());
+}
+
+TEST(SetAttributesTest, Fragment)
+{
+    EXPECT_EQ("http://host.name/#new-fragment",
+        Url::Url("http://host.name/#old-fragment").setFragment("new-fragment").str());
+}
+
 TEST(HostnameTest, LowercasesHostname)
 {
     EXPECT_EQ("www.testing.com", Url::Url("http://www.TESTING.coM").host());
