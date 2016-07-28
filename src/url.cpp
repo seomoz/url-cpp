@@ -86,7 +86,7 @@ namespace Url
                         url.end(),
                         [](char c) { return !DIGIT(c); }))
                 {
-                    scheme_ = url.substr(0, index);
+                    scheme_.assign(url, 0, index);
                     std::transform(
                         scheme_.begin(), scheme_.end(), scheme_.begin(), ::tolower);
                     position = index + 1;
@@ -102,15 +102,15 @@ namespace Url
             // Skip the '//'
             position += 2;
             index = url.find_first_of("/?#", position);
-            host_ = url.substr(position, index - position);
+            host_.assign(url, position, index - position);
             position = index;
 
             // Extract any userinfo if there is any
             index = host_.find('@');
             if (index != std::string::npos)
             {
-                userinfo_ = host_.substr(0, index);
-                host_ = host_.substr(index + 1);
+                userinfo_.assign(host_, 0, index);
+                host_.assign(host_, index + 1, std::string::npos);
             }
             
             // Lowercase the hostname
@@ -120,7 +120,7 @@ namespace Url
             index = host_.find(':');
             if (index != std::string::npos)
             {
-                std::string portText = host_.substr(index + 1);
+                std::string portText(host_, index + 1, std::string::npos);
                 host_.resize(index);
 
                 if (portText.empty())
@@ -158,12 +158,12 @@ namespace Url
 
         if (position != std::string::npos)
         {
-            path_ = url.substr(position);
+            path_.assign(url, position, std::string::npos);
 
             index = path_.find('#');
             if (index != std::string::npos)
             {
-                fragment_ = path_.substr(index + 1);
+                fragment_.assign(path_, index + 1, std::string::npos);
                 path_.resize(index);
             }
 
@@ -173,7 +173,7 @@ namespace Url
                 size_t start = path_.find_first_not_of('?', index + 1);
                 if (start != std::string::npos)
                 {
-                    query_ = path_.substr(start);
+                    query_.assign(path_, start, std::string::npos);
                     remove_repeats(query_, '&');
                 }
                 else
@@ -186,7 +186,7 @@ namespace Url
             index = path_.find(';');
             if (index != std::string::npos)
             {
-                params_ = path_.substr(index + 1);
+                params_.assign(path_, index + 1, std::string::npos);
                 remove_repeats(params_, ';');
                 path_.resize(index);
             }
@@ -391,7 +391,7 @@ namespace Url
             }
             else
             {
-                path_ = other.path_.substr(0, other.path_.rfind('/') + 1);
+                path_.assign(other.path_, 0, other.path_.rfind('/') + 1);
             }
 
             if (fragment_.empty())
@@ -548,16 +548,13 @@ namespace Url
             ; index != std::string::npos
             ; previous = index + 1, index = str.find(sep, previous))
         {
-            piece = str.substr(previous, index - previous);
+            piece.assign(str, previous, index - previous);
             size_t position = piece.find('=');
-            name = piece.substr(0, position);
+            name.assign(piece, 0, position);
+            value.clear();
             if (position != std::string::npos)
             {
-                value = piece.substr(position + 1);
-            }
-            else
-            {
-                value.clear();
+                value.assign(piece, position + 1, std::string::npos);
             }
 
             if (!predicate(name, value))
@@ -568,16 +565,13 @@ namespace Url
 
         if (previous < str.length())
         {
-            piece = str.substr(previous);
+            piece.assign(str, previous, std::string::npos);
             size_t position = piece.find('=');
-            name = piece.substr(0, position);
+            name.assign(piece, 0, position);
+            value.clear();
             if (position != std::string::npos)
             {
-                value = piece.substr(position + 1);
-            }
-            else
-            {
-                value.clear();
+                value.assign(piece, position + 1, std::string::npos);
             }
 
             if (!predicate(name, value))
