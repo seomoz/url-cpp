@@ -54,8 +54,12 @@ namespace Url
 
         // The highest codepoint in unicode
         const punycode_uint MAX_PUNYCODE_UINT = std::numeric_limits<punycode_uint>::max();
-        //Utf8::MAX_CODEPOINT;
-        //std::numeric_limits<punycode_uint>::max();
+
+        /**
+         * Punycode the utf-8-encoded begin->end and append it to str.
+         */
+        std::string& encode(std::string& str, std::string::const_iterator begin,
+            std::string::const_iterator end);
 
         /**
          * Replace utf-8-encoded str into punycode.
@@ -66,6 +70,12 @@ namespace Url
          * Create a new punycoded string from utf-8-encoded input.
          */
         std::string encode(const std::string& str);
+
+        /**
+         * Append the utf-8-version of the punycoded string between begin and end to str.
+         */
+        std::string& decode(std::string& str, std::string::const_iterator begin,
+            std::string::const_iterator end);
 
         /**
          * Replace punycoded str into utf-8-encoded.
@@ -81,6 +91,12 @@ namespace Url
          * Determine if a string needs punycoding.
          */
         bool needsPunycoding(const std::string& str);
+
+        /**
+         * Determine if the characters between these two iterators needs punycoding.
+         */
+        bool needsPunycoding(const std::string::const_iterator& begin,
+                             const std::string::const_iterator& end);
 
         /**
          * Internal function for calculating bias.
