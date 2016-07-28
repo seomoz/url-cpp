@@ -2,6 +2,7 @@
 #define URL_CPP_H
 
 #include <stdexcept>
+#include <functional>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -62,6 +63,9 @@ namespace Url
         const static CharacterClass SCHEME;
         const static std::vector<signed char> HEX_TO_DEC;
         const static std::unordered_map<std::string, int> PORTS;
+
+        // The type of the predicate used for removing parameters
+        typedef std::function<bool(std::string&, std::string&)> deparam_predicate;
 
         explicit Url(const std::string& url);
 
@@ -185,6 +189,15 @@ namespace Url
         Url& deparam(const std::unordered_set<std::string>& blacklist);
 
         /**
+         * Filter params subject to a predicate for whether it should be filtered.
+         *
+         * The predicate must accept two string refs -- the key and value (which may be
+         * empty). Return `true` if the parameter should be removed, and `false`
+         * otherwise.
+         */
+        Url& deparam(const deparam_predicate& predicate);
+
+        /**
          * Put queries and params in sorted order.
          *
          * To ensure consistent comparisons, escape should be called beforehand.
@@ -238,7 +251,7 @@ namespace Url
         /**
          * Remove any params that match entries in the blacklist.
          */
-        void remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator);
+        void remove_params(std::string& str, const deparam_predicate& pred, char sep);
 
         /**
          * Split the provided string by char, sort, join by char.

@@ -516,24 +516,51 @@ namespace Url
 
     Url& Url::deparam(const std::unordered_set<std::string>& blacklist)
     {
-        remove_params(params_, blacklist, ';');
-        remove_params(query_, blacklist, '&');
+        // Predicate is if it's present in the blacklist.
+        auto predicate = [blacklist](std::string& name, const std::string& value)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+            return blacklist.find(name) != blacklist.end();
+        };
+
+        remove_params(params_, predicate, ';');
+        remove_params(query_, predicate, '&');
         return *this;
     }
 
-    void Url::remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator)
+    Url& Url::deparam(const deparam_predicate& predicate)
+    {
+        remove_params(params_, predicate, ';');
+        remove_params(query_, predicate, '&');
+        return *this;
+    }
+
+    void Url::remove_params(std::string& str,
+                            const deparam_predicate& predicate,
+                            char sep)
     {
         std::vector<std::string> pieces;
+        std::string piece;
+        std::string name;
+        std::string value;
         size_t previous = 0;
-        for (size_t index = str.find(separator)
+        for (size_t index = str.find(sep)
             ; index != std::string::npos
-            ; previous = index + 1, index = str.find(separator, previous))
+            ; previous = index + 1, index = str.find(sep, previous))
         {
-            std::string piece = str.substr(previous, index - previous);
-            std::string name = piece.substr(0, piece.find('='));
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+            piece = str.substr(previous, index - previous);
+            size_t position = piece.find('=');
+            name = piece.substr(0, position);
+            if (position != std::string::npos)
+            {
+                value = piece.substr(position + 1);
+            }
+            else
+            {
+                value.clear();
+            }
 
-            if (blacklist.find(name) == blacklist.end())
+            if (!predicate(name, value))
             {
                 pieces.push_back(piece);
             }
@@ -541,10 +568,19 @@ namespace Url
 
         if (previous < str.length())
         {
-            std::string piece = str.substr(previous);
-            std::string name = piece.substr(0, piece.find('='));
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-            if (blacklist.find(name) == blacklist.end())
+            piece = str.substr(previous);
+            size_t position = piece.find('=');
+            name = piece.substr(0, position);
+            if (position != std::string::npos)
+            {
+                value = piece.substr(position + 1);
+            }
+            else
+            {
+                value.clear();
+            }
+
+            if (!predicate(name, value))
             {
                 pieces.push_back(piece);
             }
@@ -556,7 +592,7 @@ namespace Url
             copy.append(*it);
             for (++it; it != pieces.end(); ++it)
             {
-                copy.append(1, separator);
+                copy.append(1, sep);
                 copy.append(*it);
             }
         }
