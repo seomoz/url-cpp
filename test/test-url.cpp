@@ -802,6 +802,28 @@ TEST(FilterParams, CaseInsensitivity)
     EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
 }
 
+TEST(FilterParams, PredicateFormQuery)
+{
+    auto predicate = [](std::string& name, std::string& value)
+    {
+        // Remove parameters with the value 2 or with "foo" in the name
+        return (value == "2") || (name.find("foo") != std::string::npos);
+    };
+    EXPECT_EQ("?a=1&c=3",
+        Url::Url("?a=1&b=2&c=3&not-foo&yes-foo=18").deparam(predicate).str());
+}
+
+TEST(FilterParams, PredicateFormParams)
+{
+    auto predicate = [](std::string& name, std::string& value)
+    {
+        // Remove parameters with the value 2 or with "foo" in the name
+        return (value == "2") || (name.find("foo") != std::string::npos);
+    };
+    EXPECT_EQ(";a=1;c=3",
+        Url::Url(";a=1;b=2;c=3;not-foo;yes-foo=18").deparam(predicate).str());
+}
+
 TEST(SortQueryTest, SortsQueries)
 {
     EXPECT_EQ("http://foo.com/?a=1&b=2&c=3",

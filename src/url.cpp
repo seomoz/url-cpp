@@ -86,7 +86,7 @@ namespace Url
                         url.end(),
                         [](char c) { return !DIGIT(c); }))
                 {
-                    scheme_ = url.substr(0, index);
+                    scheme_.assign(url, 0, index);
                     std::transform(
                         scheme_.begin(), scheme_.end(), scheme_.begin(), ::tolower);
                     position = index + 1;
@@ -102,15 +102,15 @@ namespace Url
             // Skip the '//'
             position += 2;
             index = url.find_first_of("/?#", position);
-            host_ = url.substr(position, index - position);
+            host_.assign(url, position, index - position);
             position = index;
 
             // Extract any userinfo if there is any
             index = host_.find('@');
             if (index != std::string::npos)
             {
-                userinfo_ = host_.substr(0, index);
-                host_ = host_.substr(index + 1);
+                userinfo_.assign(host_, 0, index);
+                host_.assign(host_, index + 1, std::string::npos);
             }
             
             // Lowercase the hostname
@@ -120,7 +120,7 @@ namespace Url
             index = host_.find(':');
             if (index != std::string::npos)
             {
-                std::string portText = host_.substr(index + 1);
+                std::string portText(host_, index + 1, std::string::npos);
                 host_.resize(index);
 
                 if (portText.empty())
@@ -158,12 +158,12 @@ namespace Url
 
         if (position != std::string::npos)
         {
-            path_ = url.substr(position);
+            path_.assign(url, position, std::string::npos);
 
             index = path_.find('#');
             if (index != std::string::npos)
             {
-                fragment_ = path_.substr(index + 1);
+                fragment_.assign(path_, index + 1, std::string::npos);
                 path_.resize(index);
             }
 
@@ -173,7 +173,7 @@ namespace Url
                 size_t start = path_.find_first_not_of('?', index + 1);
                 if (start != std::string::npos)
                 {
-                    query_ = path_.substr(start);
+                    query_.assign(path_, start, std::string::npos);
                     remove_repeats(query_, '&');
                 }
                 else
@@ -186,7 +186,7 @@ namespace Url
             index = path_.find(';');
             if (index != std::string::npos)
             {
-                params_ = path_.substr(index + 1);
+                params_.assign(path_, index + 1, std::string::npos);
                 remove_repeats(params_, ';');
                 path_.resize(index);
             }
@@ -391,7 +391,7 @@ namespace Url
             }
             else
             {
-                path_ = other.path_.substr(0, other.path_.rfind('/') + 1);
+                path_.assign(other.path_, 0, other.path_.rfind('/') + 1);
             }
 
             if (fragment_.empty())
@@ -516,50 +516,72 @@ namespace Url
 
     Url& Url::deparam(const std::unordered_set<std::string>& blacklist)
     {
-        remove_params(params_, blacklist, ';');
-        remove_params(query_, blacklist, '&');
+        // Predicate is if it's present in the blacklist.
+        auto predicate = [blacklist](std::string& name, const std::string& value)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+            return blacklist.find(name) != blacklist.end();
+        };
+
+        remove_params(params_, predicate, ';');
+        remove_params(query_, predicate, '&');
         return *this;
     }
 
-    void Url::remove_params(std::string& str, const std::unordered_set<std::string>& blacklist, const char separator)
+    Url& Url::deparam(const deparam_predicate& predicate)
     {
-        std::vector<std::string> pieces;
-        size_t previous = 0;
-        for (size_t index = str.find(separator)
-            ; index != std::string::npos
-            ; previous = index + 1, index = str.find(separator, previous))
-        {
-            std::string piece = str.substr(previous, index - previous);
-            std::string name = piece.substr(0, piece.find('='));
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        remove_params(params_, predicate, ';');
+        remove_params(query_, predicate, '&');
+        return *this;
+    }
 
-            if (blacklist.find(name) == blacklist.end())
+    void Url::remove_params(std::string& str,
+                            const deparam_predicate& predicate,
+                            char sep)
+    {
+        std::string copy;
+        std::string piece;
+        std::string name;
+        std::string value;
+        size_t previous = 0;
+        for (size_t index = str.find(sep)
+            ; index != std::string::npos
+            ; previous = index + 1, index = str.find(sep, previous))
+        {
+            piece.assign(str, previous, index - previous);
+            size_t position = piece.find('=');
+            name.assign(piece, 0, position);
+            value.clear();
+            if (position != std::string::npos)
             {
-                pieces.push_back(piece);
+                value.assign(piece, position + 1, std::string::npos);
+            }
+
+            if (!predicate(name, value))
+            {
+                copy.append(copy.empty() ? 0 : 1, sep);
+                copy.append(piece);
             }
         }
 
         if (previous < str.length())
         {
-            std::string piece = str.substr(previous);
-            std::string name = piece.substr(0, piece.find('='));
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-            if (blacklist.find(name) == blacklist.end())
+            piece.assign(str, previous, std::string::npos);
+            size_t position = piece.find('=');
+            name.assign(piece, 0, position);
+            value.clear();
+            if (position != std::string::npos)
             {
-                pieces.push_back(piece);
+                value.assign(piece, position + 1, std::string::npos);
+            }
+
+            if (!predicate(name, value))
+            {
+                copy.append(copy.empty() ? 0 : 1, sep);
+                copy.append(piece);
             }
         }
 
-        std::string copy;
-        for (auto it = pieces.begin(); it != pieces.end();)
-        {
-            copy.append(*it);
-            for (++it; it != pieces.end(); ++it)
-            {
-                copy.append(1, separator);
-                copy.append(*it);
-            }
-        }
         str.assign(copy);
     }
 
