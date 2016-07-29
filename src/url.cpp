@@ -219,7 +219,24 @@ namespace Url
 
     bool Url::equiv(const Url& other)
     {
-        throw std::invalid_argument("Method not implemented");
+        Url self_(*this);
+        Url other_(other);
+
+        self_.sort_query()
+             .defrag()
+             .deuserinfo()
+             .abspath()
+             .escape()
+             .punycode()
+             .remove_default_port();
+        other_.sort_query()
+              .defrag()
+              .deuserinfo()
+              .abspath()
+              .escape()
+              .punycode()
+              .remove_default_port();
+        return self_ == other_;
     }
 
     void Url::remove_repeats(std::string& str, const char chr)
