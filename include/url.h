@@ -90,6 +90,11 @@ namespace Url
         bool operator==(const Url& other) const;
         bool operator!=(const Url& other) const;
 
+        /**
+         * Two URLs are considered equivalent if they have the same meaning.
+         */
+        bool equiv(const Url& other);
+
         /**************************************
          * Component-wise access and setting. *
          **************************************/

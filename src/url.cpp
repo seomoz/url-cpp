@@ -217,6 +217,11 @@ namespace Url
         return !operator==(other);
     }
 
+    bool Url::equiv(const Url& other)
+    {
+        throw std::invalid_argument("Method not implemented");
+    }
+
     void Url::remove_repeats(std::string& str, const char chr)
     {
         size_t dest = 0;
