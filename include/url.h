@@ -79,6 +79,22 @@ namespace Url
             , fragment_(other.fragment_)
             , userinfo_(other.userinfo_) { }
 
+        /**
+         * Take on the value of the other URL.
+         */
+        Url& assign(const Url& other);
+
+        /**
+         * To be considered equal, all fields must be equal.
+         */
+        bool operator==(const Url& other) const;
+        bool operator!=(const Url& other) const;
+
+        /**
+         * Two URLs are considered equivalent if they have the same meaning.
+         */
+        bool equiv(const Url& other);
+
         /**************************************
          * Component-wise access and setting. *
          **************************************/

@@ -247,6 +247,228 @@ TEST(ParseTest, TestPortNotNumber)
     ASSERT_THROW(Url::Url("http://www.python.org:80hello/"), Url::UrlParseException);
 }
 
+TEST(AssignTest, AssignsValue)
+{
+    Url::Url assignee("");
+    Url::Url parsed("http://user@example.com:8080/path;param?query#fragment");
+    assignee.assign(parsed);
+    EXPECT_EQ(assignee.scheme(), parsed.scheme());
+    EXPECT_EQ(assignee.userinfo(), parsed.userinfo());
+    EXPECT_EQ(assignee.host(), parsed.host());
+    EXPECT_EQ(assignee.port(), parsed.port());
+    EXPECT_EQ(assignee.path(), parsed.path());
+    EXPECT_EQ(assignee.params(), parsed.params());
+    EXPECT_EQ(assignee.query(), parsed.query());
+    EXPECT_EQ(assignee.fragment(), parsed.fragment());
+}
+
+TEST(EqualityTest, RequiresSchemeEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setScheme("https");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresUserinfoEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setUserinfo("name");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresHostEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setHost("new.host");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresPortEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setPort(1234);
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresPathEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setPath("/new/path");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresParamsEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setParams("new;params");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresQueryEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setQuery("new=query");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresFragmentEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setFragment("new-fragment");
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, HttpPort)
+{
+    Url::Url a("http://foo.com:80");
+    Url::Url b("http://foo.com/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, HttpsPort)
+{
+    Url::Url a("https://foo.com:443");
+    Url::Url b("https://foo.com/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, QueryOrder)
+{
+    Url::Url a("http://foo.com/?b=2&&&&a=1");
+    Url::Url b("http://foo.com/?a=1&b=2");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, EscapeCodeCasing)
+{
+    Url::Url a("http://foo.com/%A2%B3");
+    Url::Url b("http://foo.com/%a2%b3");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, RelativePath)
+{
+    Url::Url a("http://foo.com/a/../b/.");
+    Url::Url b("http://foo.com/b/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, PunycodingLower)
+{
+    Url::Url a("http://www.k\xc3\xbcndigen.de/");
+    Url::Url b("http://www.xn--kndigen-n2a.de/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, PunycodingUpper)
+{
+    Url::Url a("http://www.k\xc3\xbcndiGen.DE/");
+    Url::Url b("http://www.xn--kndigen-n2a.de/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(EquivTest, Userinfo)
+{
+    Url::Url a("http://user:pass@foo.com/");
+    Url::Url b("http://foo.com/");
+    EXPECT_TRUE(a.equiv(b));
+    EXPECT_TRUE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, HostnameMismatch)
+{
+    Url::Url a("http://foo.com:");
+    Url::Url b("http://foo.co.uk/");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, DifferentNonDefaultHttpPort)
+{
+    Url::Url a("http://foo.com:8080");
+    Url::Url b("http://foo.com/");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, DifferentNonDefaultHttpsPort)
+{
+    Url::Url a("https://foo.com:4430");
+    Url::Url b("https://foo.com/");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, DifferentQueries)
+{
+    Url::Url a("http://foo.com?page&foo");
+    Url::Url b("http://foo.com/?page");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, AdditionalQueries)
+{
+    Url::Url a("http://foo.com/?b=2&c&a=1");
+    Url::Url b("http://foo.com/?a=1&b=2");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, DifferentEscapeSequences)
+{
+    Url::Url a("http://foo.com/%A2%B3%C3");
+    Url::Url b("http://foo.com/%a2%b3");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
+TEST(NotEquivTest, DifferentHosts)
+{
+    Url::Url a("http://www.kündïgen.de/");
+    Url::Url b("http://www.xn--kndigen-n2a.de/");
+    EXPECT_FALSE(a.equiv(b));
+    EXPECT_FALSE(b.equiv(a));
+    EXPECT_NE(a, b);
+}
+
 TEST(SetAttributesTest, Scheme)
 {
     EXPECT_EQ("https://host.name/",

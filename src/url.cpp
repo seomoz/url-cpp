@@ -193,6 +193,52 @@ namespace Url
         }
     }
 
+    Url& Url::assign(const Url& other)
+    {
+        return (*this) = other;
+    }
+
+    bool Url::operator==(const Url& other) const
+    {
+        return (
+            (scheme_   == other.scheme_  ) &&
+            (userinfo_ == other.userinfo_) &&
+            (host_     == other.host_    ) &&
+            (port_     == other.port_    ) &&
+            (path_     == other.path_    ) &&
+            (params_   == other.params_  ) &&
+            (query_    == other.query_   ) &&
+            (fragment_ == other.fragment_)
+        );
+    }
+
+    bool Url::operator!=(const Url& other) const
+    {
+        return !operator==(other);
+    }
+
+    bool Url::equiv(const Url& other)
+    {
+        Url self_(*this);
+        Url other_(other);
+
+        self_.sort_query()
+             .defrag()
+             .deuserinfo()
+             .abspath()
+             .escape()
+             .punycode()
+             .remove_default_port();
+        other_.sort_query()
+              .defrag()
+              .deuserinfo()
+              .abspath()
+              .escape()
+              .punycode()
+              .remove_default_port();
+        return self_ == other_;
+    }
+
     void Url::remove_repeats(std::string& str, const char chr)
     {
         size_t dest = 0;
