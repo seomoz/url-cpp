@@ -200,7 +200,16 @@ namespace Url
 
     bool Url::operator==(const Url& other) const
     {
-        return true;
+        return (
+            (scheme_   == other.scheme_  ) &&
+            (userinfo_ == other.userinfo_) &&
+            (host_     == other.host_    ) &&
+            (port_     == other.port_    ) &&
+            (path_     == other.path_    ) &&
+            (params_   == other.params_  ) &&
+            (query_    == other.query_   ) &&
+            (fragment_ == other.fragment_)
+        );
     }
 
     bool Url::operator!=(const Url& other) const
