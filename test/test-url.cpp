@@ -247,6 +247,21 @@ TEST(ParseTest, TestPortNotNumber)
     ASSERT_THROW(Url::Url("http://www.python.org:80hello/"), Url::UrlParseException);
 }
 
+TEST(AssignTest, AssignsValue)
+{
+    Url::Url assignee("");
+    Url::Url parsed("http://user@example.com:8080/path;param?query#fragment");
+    assignee.assign(parsed);
+    EXPECT_EQ(assignee.scheme(), parsed.scheme());
+    EXPECT_EQ(assignee.userinfo(), parsed.userinfo());
+    EXPECT_EQ(assignee.host(), parsed.host());
+    EXPECT_EQ(assignee.port(), parsed.port());
+    EXPECT_EQ(assignee.path(), parsed.path());
+    EXPECT_EQ(assignee.params(), parsed.params());
+    EXPECT_EQ(assignee.query(), parsed.query());
+    EXPECT_EQ(assignee.fragment(), parsed.fragment());
+}
+
 TEST(SetAttributesTest, Scheme)
 {
     EXPECT_EQ("https://host.name/",

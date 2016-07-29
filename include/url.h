@@ -79,6 +79,11 @@ namespace Url
             , fragment_(other.fragment_)
             , userinfo_(other.userinfo_) { }
 
+        /**
+         * Take on the value of the other URL.
+         */
+        Url& assign(const Url& other);
+
         /**************************************
          * Component-wise access and setting. *
          **************************************/

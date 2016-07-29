@@ -193,6 +193,11 @@ namespace Url
         }
     }
 
+    Url& Url::assign(const Url& other)
+    {
+        return *this;
+    }
+
     void Url::remove_repeats(std::string& str, const char chr)
     {
         size_t dest = 0;
