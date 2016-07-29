@@ -198,6 +198,16 @@ namespace Url
         return (*this) = other;
     }
 
+    bool Url::operator==(const Url& other) const
+    {
+        return true;
+    }
+
+    bool Url::operator!=(const Url& other) const
+    {
+        return !operator==(other);
+    }
+
     void Url::remove_repeats(std::string& str, const char chr)
     {
         size_t dest = 0;

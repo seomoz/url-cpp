@@ -84,6 +84,12 @@ namespace Url
          */
         Url& assign(const Url& other);
 
+        /**
+         * To be considered equal, all fields must be equal.
+         */
+        bool operator==(const Url& other) const;
+        bool operator!=(const Url& other) const;
+
         /**************************************
          * Component-wise access and setting. *
          **************************************/

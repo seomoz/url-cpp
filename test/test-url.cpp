@@ -262,6 +262,78 @@ TEST(AssignTest, AssignsValue)
     EXPECT_EQ(assignee.fragment(), parsed.fragment());
 }
 
+TEST(EqualityTest, RequiresSchemeEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setScheme("https");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresUserinfoEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setUserinfo("name");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresHostEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setHost("new.host");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresPortEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setPort(1234);
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresPathEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setPath("/new/path");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresParamsEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setParams("new;params");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresQueryEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setQuery("new=query");
+    EXPECT_NE(a, b);
+}
+
+TEST(EqualityTest, RequiresFragmentEquality)
+{
+    Url::Url a("http://user@example.com:8080/path;param?query#fragment");
+    Url::Url b(a);
+    EXPECT_EQ(a, b);
+    b.setFragment("new-fragment");
+    EXPECT_NE(a, b);
+}
+
 TEST(SetAttributesTest, Scheme)
 {
     EXPECT_EQ("https://host.name/",
