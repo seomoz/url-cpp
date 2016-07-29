@@ -195,7 +195,7 @@ namespace Url
 
     Url& Url::assign(const Url& other)
     {
-        return *this;
+        return (*this) = other;
     }
 
     void Url::remove_repeats(std::string& str, const char chr)
