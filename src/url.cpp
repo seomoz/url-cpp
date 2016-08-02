@@ -709,31 +709,34 @@ namespace Url
 
         std::string encoded;
 
-        size_t start = 0;
-        size_t end = host_.find('.');
-        while(true)
+        auto last = host_.cbegin();
+        for (auto it = host_.cbegin(); it != host_.cend(); ++it)
         {
-            std::string segment = host_.substr(start, end - start);
-            if (Punycode::needsPunycoding(segment))
+            if (*it == '.')
             {
-                encoded.append("xn--");
-                encoded.append(Punycode::encode(segment));
-            }
-            else
-            {
-                encoded.append(segment);
-            }
+                if (Punycode::needsPunycoding(last, it))
+                {
+                    encoded.append("xn--");
+                    Punycode::encode(encoded, last, it);
+                }
+                else
+                {
+                    encoded.append(last, it);
+                }
 
-            if (end == std::string::npos)
-            {
-                break;
-            }
-            else
-            {
                 encoded.append(1, '.');
-                start = end + 1;
-                end = host_.find('.', start);
+                last = it + 1;
             }
+        }
+
+        if (Punycode::needsPunycoding(last, host_.cend()))
+        {
+            encoded.append("xn--");
+            Punycode::encode(encoded, last, host_.cend());
+        }
+        else
+        {
+            encoded.append(last, host_.cend());
         }
 
         host_.assign(encoded);
@@ -744,36 +747,48 @@ namespace Url
     Url& Url::unpunycode()
     {
         std::string unencoded;
+        std::string prefix;
 
-        size_t start = 0;
-        size_t end = host_.find('.');
-        while(true)
+        auto last = host_.cbegin();
+        for (auto it = host_.cbegin(); it != host_.cend(); ++it)
         {
-            std::string segment = host_.substr(start, end - start);
-            if (segment.substr(0, 4).compare("xn--") == 0)
+            if (*it == '.')
             {
-                segment = segment.substr(4);
-                unencoded.append(Punycode::decode(segment));
-            }
-            else
-            {
-                unencoded.append(segment);
-            }
+                // Starts with 'xn--'
+                size_t distance = it - last;
+                if (distance > 4)
+                {
+                    prefix.assign(last, last + 4);
+                    if (prefix == "xn--")
+                    {
+                        Punycode::decode(unencoded, last + 4, it);
+                        unencoded.append(1, '.');
+                        last = it + 1;
+                        continue;
+                    }
+                }
 
-            if (end == std::string::npos)
-            {
-                break;
-            }
-            else
-            {
+                unencoded.append(last, it);
                 unencoded.append(1, '.');
-                start = end + 1;
-                end = host_.find('.', start);
+                last = it + 1;
             }
         }
 
-        host_.assign(unencoded);
+        // Last segment
+        size_t distance = host_.cend() - last;
+        if (distance > 4)
+        {
+            prefix.assign(last, last + 4);
+            if (prefix == "xn--")
+            {
+                Punycode::decode(unencoded, last + 4, host_.cend());
+                host_.assign(unencoded);
+                return *this;
+            }
+        }
 
+        unencoded.append(last, host_.cend());
+        host_.assign(unencoded);
         return *this;
     }
 

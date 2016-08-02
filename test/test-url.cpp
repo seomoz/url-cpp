@@ -1108,6 +1108,18 @@ TEST(DefragTest, Defrag)
         Url::Url("http://foo.com/path#fragment").defrag().str());
 }
 
+TEST(PunycodeTest, UnpunycodeShortIdentifierAtEnd)
+{
+    std::string example("http://www.xn-/");
+    EXPECT_EQ(example, Url::Url(example).unpunycode().str());
+}
+
+TEST(PunycodeTest, UnpunycodeShortIdentifierAtStart)
+{
+    std::string example("http://xn-.com/");
+    EXPECT_EQ(example, Url::Url(example).unpunycode().str());
+}
+
 TEST(PunycodeTest, German)
 {
     std::string unencoded("http://www.kündigen.de/");

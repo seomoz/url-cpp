@@ -10,6 +10,15 @@ namespace Url
 
     std::string& Punycode::encode(std::string& str)
     {
+        std::string output;
+        encode(output, str.cbegin(), str.cend());
+        return str = output;
+    }
+
+    std::string& Punycode::encode(std::string& output,
+        std::string::const_iterator begin,
+        std::string::const_iterator end)
+    {
         // Pseudocode copied from https://tools.ietf.org/html/rfc3492#section-6.3
         //
         // let n = initial_n
@@ -18,24 +27,25 @@ namespace Url
         punycode_uint n = INITIAL_N;
         punycode_uint delta = 0;
         punycode_uint bias = INITIAL_BIAS;
-        std::string output;
+
+        // let h = b = the number of basic code points in the input
+        size_t h = 0;
+        size_t b = 0;
 
         // Accumulate the non-basic codepoints
         std::vector<punycode_uint> codepoints;
-        for (auto it = str.cbegin(); it != str.cend(); )
+        while (begin != end)
         {
-            Utf8::codepoint_t value = Utf8::readCodepoint(it, str.cend());
+            Utf8::codepoint_t value = Utf8::readCodepoint(begin, end);
             if (value < 0x80)
             {
                 // copy them to the output in order
                 output.append(1, static_cast<char>(value));
+                ++h;
+                ++b;
             }
             codepoints.push_back(value);
         }
-
-        // let h = b = the number of basic code points in the input
-        size_t h = output.size();
-        size_t b = h;
 
         // copy a delimiter if b > 0
         if (b > 0)
@@ -125,9 +135,8 @@ namespace Url
             ++delta;
             ++n;
         }
- 
-        str.assign(output);
-        return str;
+
+        return output;
     }
 
     std::string Punycode::encode(const std::string& str)
@@ -137,7 +146,8 @@ namespace Url
         return result;
     }
 
-    std::string& Punycode::decode(std::string& str)
+    std::string& Punycode::decode(std::string& str, std::string::const_iterator begin,
+            std::string::const_iterator end)
     {
         // Pseudocode copied from https://tools.ietf.org/html/rfc3492#section-6.2
         //
@@ -150,15 +160,18 @@ namespace Url
         punycode_uint bias = INITIAL_BIAS;
         std::vector<punycode_uint> codepoints;
 
-        size_t index = str.rfind('-');
-        if (index == std::string::npos)
+        std::string::const_iterator index = end;
+        for (; index != begin; --index)
         {
-            index = 0;
+            if (*index == '-')
+            {
+                break;
+            }
         }
 
         // consume all code points before the last delimiter (if there is one)
         // and copy them to output, fail on any non-basic code point
-        for (auto it = str.begin(); it != (str.begin() + index); ++it)
+        for (auto it = begin; it != index; ++it)
         {
             if (static_cast<unsigned char>(*it) > 127U)
             {
@@ -169,13 +182,13 @@ namespace Url
 
         // if more than zero code points were consumed then consume one more
         //   (which will be the last delimiter)
-        if (index > 0)
+        if (index != begin)
         {
-            index += 1;
+            ++index;
         }
 
         // while the input is not exhausted do begin
-        for (auto it = (str.begin() + index); it != str.end(); ++it)
+        for (auto it = index; it != end; ++it)
         {
             // let oldi = i
             // let w = 1
@@ -186,7 +199,7 @@ namespace Url
             for (punycode_uint k = BASE; ; k += BASE, ++it)
             {
                 // consume a code point, or fail if there was none to consume
-                if (it == str.end())
+                if (it == end)
                 {
                     throw std::invalid_argument("Premature termination");
                 }
@@ -275,13 +288,19 @@ namespace Url
             ++i;
         }
 
-        std::string output;
         for (auto it = codepoints.begin(); it != codepoints.end(); ++it)
         {
-            Utf8::writeCodepoint(output, *it);
+            Utf8::writeCodepoint(str, *it);
         }
-        str.assign(output);
 
+        return str;
+    }
+
+    std::string& Punycode::decode(std::string& str)
+    {
+        std::string output;
+        decode(output, str.cbegin(), str.cend());
+        str.assign(output);
         return str;
     }
 
@@ -294,9 +313,15 @@ namespace Url
 
     bool Punycode::needsPunycoding(const std::string& str)
     {
+        return needsPunycoding(str.cbegin(), str.cend());
+    }
+
+    bool Punycode::needsPunycoding(const std::string::const_iterator& begin,
+        const std::string::const_iterator& end)
+    {
         return std::any_of(
-            str.begin(),
-            str.end(),
+            begin,
+            end,
             [](char i){ return static_cast<unsigned char>(i) & 0x80; });
     }
 
