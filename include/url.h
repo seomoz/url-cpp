@@ -274,6 +274,11 @@ namespace Url
          */
         void split_sort_join(std::string& str, const char glue);
 
+        /**
+         * Check that the hostname is valid, removing an optional trailing '.'.
+         */
+        void check_hostname(std::string& host);
+
         std::string scheme_;
         std::string host_;
         int port_;
