@@ -572,116 +572,173 @@ TEST(ParamTest, SanitizesParams)
 
 TEST(AbspathTest, BasicPath)
 {
+    std::string example("http://foo.com/howdy");
     EXPECT_EQ("/howdy",
-        Url::Url("http://foo.com/howdy").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/howdy",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, RepeatedSeparator)
 {
+    std::string example("http://foo.com/hello//how//are");
     EXPECT_EQ("/hello/how/are",
-        Url::Url("http://foo.com/hello//how//are").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/hello/how/are",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, ParentDirectory)
 {
+    std::string example("http://foo.com/hello/../how/are");
     EXPECT_EQ("/how/are",
-        Url::Url("http://foo.com/hello/../how/are").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/how/are",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, ParentDirectoryWithRepeatedSeparators)
 {
+    std::string example("http://foo.com/hello//..//how/");
     EXPECT_EQ("/how/",
-        Url::Url("http://foo.com/hello//..//how/").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/how/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, GrandparentDirectory)
 {
+    std::string example("http://foo.com/a/b/../../c");
     EXPECT_EQ("/c",
-        Url::Url("http://foo.com/a/b/../../c").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/c",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, UpMoreLevelsThanSegments)
 {
+    std::string example("http://foo.com/../../../c");
     EXPECT_EQ("c",
-        Url::Url("http://foo.com/../../../c").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/c",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, CurrentDirectory)
 {
+    std::string example("http://foo.com/./hello");
     EXPECT_EQ("/hello",
-        Url::Url("http://foo.com/./hello").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/hello",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, CurrentDirectoryRepeated)
 {
+    std::string example("http://foo.com/./././hello");
     EXPECT_EQ("/hello",
-        Url::Url("http://foo.com/./././hello").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/hello",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, MultipleSegmentsDirectory)
 {
+    std::string example("http://foo.com/a/b/c/");
     EXPECT_EQ("/a/b/c/",
-        Url::Url("http://foo.com/a/b/c/").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/a/b/c/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingParentDirectory)
 {
+    std::string example("http://foo.com/a/b/c/..");
     EXPECT_EQ("/a/b/",
-        Url::Url("http://foo.com/a/b/c/..").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/a/b/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingCurrentDirectory)
 {
+    std::string example("http://foo.com/a/b/.");
     EXPECT_EQ("/a/b/",
-        Url::Url("http://foo.com/a/b/.").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/a/b/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingCurrentDirectoryMultiple)
 {
+    std::string example("http://foo.com/a/b/./././");
     EXPECT_EQ("/a/b/",
-        Url::Url("http://foo.com/a/b/./././").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/a/b/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingParentDirectorySlash)
 {
+    std::string example("http://foo.com/a/b/../");
     EXPECT_EQ("/a/",
-        Url::Url("http://foo.com/a/b/../").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/a/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, OnlyCurrentDirectory)
 {
+    std::string example("http://foo.com/.");
     EXPECT_EQ("/",
-        Url::Url("http://foo.com/.").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, OnlyMultipleParentDirectories)
 {
+    std::string example("http://foo.com/../../..");
     EXPECT_EQ("/",
-        Url::Url("http://foo.com/../../..").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingDotInLastSegment)
 {
+    std::string example("http://foo.com//foo/../whiz.");
     EXPECT_EQ("/whiz.",
-        Url::Url("http://foo.com//foo/../whiz.").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/whiz.",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingDotInSegmentSlash)
 {
+    std::string example("http://foo.com//foo/whiz./");
     EXPECT_EQ("/foo/whiz./",
-        Url::Url("http://foo.com//foo/whiz./").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/foo/whiz./",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, TrailingDotInSegment)
 {
+    std::string example("http://foo.com//foo/whiz./bar");
     EXPECT_EQ("/foo/whiz./bar",
-        Url::Url("http://foo.com//foo/whiz./bar").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("http://foo.com/foo/whiz./bar",
+        Url::Url(example).abspath().str());
 }
 
 TEST(AbspathTest, DoesNotUseNetloc)
 {
+    std::string example("javascript:console.log('hello')");
     EXPECT_EQ("console.log('hello')",
-        Url::Url("javascript:console.log('hello')").abspath().path());
+        Url::Url(example).abspath().path());
+    EXPECT_EQ("javascript:console.log('hello')",
+        Url::Url(example).abspath().str());
 }
 
 TEST(RelativeTest, SchemeRelative)
