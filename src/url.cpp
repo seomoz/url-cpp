@@ -244,12 +244,15 @@ namespace Url
                 path_.resize(index);
             }
 
-            index = path_.find(';');
-            if (index != std::string::npos)
+            if (USES_PARAMS.find(scheme_) != USES_PARAMS.end())
             {
-                params_.assign(path_, index + 1, std::string::npos);
-                remove_repeats(params_, ';');
-                path_.resize(index);
+                index = path_.find(';');
+                if (index != std::string::npos)
+                {
+                    params_.assign(path_, index + 1, std::string::npos);
+                    remove_repeats(params_, ';');
+                    path_.resize(index);
+                }
             }
         }
     }
