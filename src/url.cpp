@@ -468,6 +468,12 @@ namespace Url
 
     Url& Url::relative_to(const Url& other)
     {
+        // If this scheme does not use relative, return it unchanged
+        if (USES_RELATIVE.find(scheme_) == USES_RELATIVE.end())
+        {
+            return *this;
+        }
+
         // Support scheme-relative URLs
         if (scheme_.empty())
         {
