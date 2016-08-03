@@ -368,6 +368,10 @@ namespace Url
         }
         else
         {
+            if (!host_.empty() && path_[0] != '/')
+            {
+                result.append(1, '/');
+            }
             result.append(path_);
         }
 
