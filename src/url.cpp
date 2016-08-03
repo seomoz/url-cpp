@@ -701,6 +701,9 @@ namespace Url
 
     Url& Url::punycode()
     {
+        // Ensure the hostname is valid.
+        check_hostname(host_);
+
         // Avoid any punycoding at all if none is needed
         if (!Punycode::needsPunycoding(host_))
         {
@@ -736,6 +739,7 @@ namespace Url
             }
         }
 
+        check_hostname(encoded);
         host_.assign(encoded);
 
         return *this;
@@ -775,6 +779,44 @@ namespace Url
         host_.assign(unencoded);
 
         return *this;
+    }
+
+    void Url::check_hostname(std::string& host)
+    {
+        // Skip empty hostnames -- they are valid
+        if (host.empty())
+        {
+            return;
+        }
+
+        size_t start = 0;
+        size_t end = host.find('.');
+        while (end != std::string::npos)
+        {
+            if ((end - start) > 63)
+            {
+                throw std::invalid_argument("Label too long.");
+            }
+            else if (end == start)
+            {
+                throw std::invalid_argument("Empty label.");
+            }
+
+            start = end + 1;
+            end = host.find('.', start);
+        }
+
+        // For the final segment
+        if ((host.size() - start) > 63)
+        {
+            throw std::invalid_argument("Label too long.");
+        }
+        else if (host.size() == start && start > 1)
+        {
+            // Remove a trailing empty segment
+            host.resize(start - 1);
+        }
+
     }
 
 };

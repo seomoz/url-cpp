@@ -1154,3 +1154,39 @@ TEST(PunycodeTest, Safe)
     std::string encoded("http://safe.segments/");
     EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
 }
+
+TEST(PunycodeTest, SingleDot)
+{
+    ASSERT_THROW(Url::Url("http://./").punycode(), std::invalid_argument);
+}
+
+TEST(PunycodeTest, EmptySegment)
+{
+    ASSERT_THROW(Url::Url("http://foo..com/").punycode(), std::invalid_argument);
+}
+
+TEST(PunycodeTest, TrailingEmptySegment)
+{
+    ASSERT_THROW(Url::Url("http://foo../").punycode(), std::invalid_argument);
+}
+
+TEST(PunycodeTest, TrailingPeriod)
+{
+    std::string unencoded("http://foo.com./");
+    std::string encoded("http://foo.com/");
+    EXPECT_EQ(encoded, Url::Url(unencoded).punycode().str());
+}
+
+TEST(PunycodeTest, SegmentTooLong)
+{
+    std::string unencoded(
+        "http://this-is-a-very-long-segment-that-has-more-than-sixty-three-characters.com/");
+    ASSERT_THROW(Url::Url(unencoded).punycode(), std::invalid_argument);
+}
+
+TEST(PunycodeTest, TrailingSegmentTooLong)
+{
+    std::string unencoded(
+        "http://this-is-a-very-long-segment-that-has-more-than-sixty-three-characters/");
+    ASSERT_THROW(Url::Url(unencoded).punycode(), std::invalid_argument);
+}
