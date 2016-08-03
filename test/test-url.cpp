@@ -867,6 +867,20 @@ TEST(RelativeTest, BaseWithDirectory)
         Url::Url("relative").relative_to(base).str());
 }
 
+TEST(RelativeTest, RelativeSchemeDoesntUseRelative)
+{
+    Url::Url base("http://foo.com/path");
+    EXPECT_EQ("javascript:console.log(\"hello\")",
+        Url::Url("javascript:console.log(\"hello\")").relative_to(base).str());
+}
+
+TEST(RelativeTest, BaseSchemeDoesntUseRelative)
+{
+    Url::Url base("javascript:console.log(\"hello\")");
+    EXPECT_EQ("http://foo.com/path",
+        Url::Url("http://foo.com/path").relative_to(base).str());
+}
+
 TEST(EscapeTest, IncompleteEntity)
 {
     EXPECT_EQ("trailing-incomplete%252",
