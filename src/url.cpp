@@ -325,7 +325,14 @@ namespace Url
         if (!scheme_.empty())
         {
             result.append(scheme_);
-            result.append("://");
+            if (USES_NETLOC.find(scheme_) == USES_NETLOC.end())
+            {
+                result.append(":");
+            }
+            else
+            {
+                result.append("://");
+            }
         }
         else if (!host_.empty())
         {
