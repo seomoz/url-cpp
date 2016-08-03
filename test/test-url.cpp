@@ -602,7 +602,7 @@ TEST(AbspathTest, GrandparentDirectory)
 
 TEST(AbspathTest, UpMoreLevelsThanSegments)
 {
-    EXPECT_EQ("/c",
+    EXPECT_EQ("c",
         Url::Url("http://foo.com/../../../c").abspath().path());
 }
 
@@ -676,6 +676,12 @@ TEST(AbspathTest, TrailingDotInSegment)
 {
     EXPECT_EQ("/foo/whiz./bar",
         Url::Url("http://foo.com//foo/whiz./bar").abspath().path());
+}
+
+TEST(AbspathTest, DoesNotUseNetloc)
+{
+    EXPECT_EQ("console.log('hello')",
+        Url::Url("javascript:console.log('hello')").abspath().path());
 }
 
 TEST(RelativeTest, SchemeRelative)
