@@ -241,6 +241,20 @@ TEST(ParseTest, DoesNotUseNetloc)
     EXPECT_EQ("javascript:console.log('hello')", parsed.str());
 }
 
+TEST(ParseTest, DoesNotUseParams)
+{
+    Url::Url parsed("javascript:console.log('hello');console.log('world')");
+    EXPECT_EQ("javascript", parsed.scheme());
+    EXPECT_EQ("", parsed.userinfo());
+    EXPECT_EQ("", parsed.host());
+    EXPECT_EQ(0, parsed.port());
+    EXPECT_EQ("console.log('hello');console.log('world')", parsed.path());
+    EXPECT_EQ("", parsed.params());
+    EXPECT_EQ("", parsed.query());
+    EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("javascript:console.log('hello');console.log('world')", parsed.str());
+}
+
 TEST(ParseTest, TestIllegalPort)
 {
     ASSERT_THROW(Url::Url("http://www.python.org:65536/"), Url::UrlParseException);
