@@ -396,6 +396,13 @@ namespace Url
     {
         std::string copy;
         std::vector<size_t> segment_starts;
+
+        if (path_.size() >= 1 && path_[0] == '/')
+        {
+            copy.append(1, '/');
+            segment_starts.push_back(0);
+        }
+
         bool directory = false;
         size_t previous = 0;
         size_t index = 0;
@@ -427,8 +434,8 @@ namespace Url
             else
             {
                 segment_starts.push_back(copy.length());
-                copy.append(1, '/');
                 copy.append(path_, previous, index - previous);
+                copy.append(1, '/');
                 directory = false;
             }
         }
@@ -455,12 +462,16 @@ namespace Url
         }
         else
         {
-            copy.append(1, '/');
             copy.append(path_, previous, index - previous);
+            copy.append(1, '/');
             directory = false;
         }
 
-        if (directory)
+        if (!directory && copy.size() >= 1)
+        {
+            copy.resize(copy.size() - 1);
+        }
+        else if (directory && copy.empty())
         {
             copy.append(1, '/');
         }
