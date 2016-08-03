@@ -65,6 +65,67 @@ namespace Url
         {"http", 80},
         {"https", 443}
     };
+    const std::unordered_set<std::string> Url::USES_RELATIVE = {
+        "",
+        "file",
+        "ftp",
+        "gopher",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "nntp",
+        "prospero",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "svn",
+        "svn+ssh",
+        "wais"
+    };
+    const std::unordered_set<std::string> Url::USES_NETLOC = {
+        "",
+        "file",
+        "ftp",
+        "git",
+        "git+ssh",
+        "gopher",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "nfs",
+        "nntp",
+        "prospero",
+        "rsync",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "snews",
+        "svn",
+        "svn+ssh",
+        "telnet",
+        "wais"
+    };
+    const std::unordered_set<std::string> Url::USES_PARAMS = {
+        "",
+        "ftp",
+        "hdl",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "prospero",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "sip",
+        "sips",
+        "tel"
+    };
 
     Url::Url(const std::string& url): port_(0)
     {
