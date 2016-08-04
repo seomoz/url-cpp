@@ -63,6 +63,9 @@ namespace Url
         const static CharacterClass SCHEME;
         const static std::vector<signed char> HEX_TO_DEC;
         const static std::unordered_map<std::string, int> PORTS;
+        const static std::unordered_set<std::string> USES_RELATIVE;
+        const static std::unordered_set<std::string> USES_NETLOC;
+        const static std::unordered_set<std::string> USES_PARAMS;
 
         // The type of the predicate used for removing parameters
         typedef std::function<bool(std::string&, std::string&)> deparam_predicate;

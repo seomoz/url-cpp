@@ -65,6 +65,67 @@ namespace Url
         {"http", 80},
         {"https", 443}
     };
+    const std::unordered_set<std::string> Url::USES_RELATIVE = {
+        "",
+        "file",
+        "ftp",
+        "gopher",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "nntp",
+        "prospero",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "svn",
+        "svn+ssh",
+        "wais"
+    };
+    const std::unordered_set<std::string> Url::USES_NETLOC = {
+        "",
+        "file",
+        "ftp",
+        "git",
+        "git+ssh",
+        "gopher",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "nfs",
+        "nntp",
+        "prospero",
+        "rsync",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "snews",
+        "svn",
+        "svn+ssh",
+        "telnet",
+        "wais"
+    };
+    const std::unordered_set<std::string> Url::USES_PARAMS = {
+        "",
+        "ftp",
+        "hdl",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "prospero",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "sip",
+        "sips",
+        "tel"
+    };
 
     Url::Url(const std::string& url): port_(0)
     {
@@ -183,12 +244,15 @@ namespace Url
                 path_.resize(index);
             }
 
-            index = path_.find(';');
-            if (index != std::string::npos)
+            if (USES_PARAMS.find(scheme_) != USES_PARAMS.end())
             {
-                params_.assign(path_, index + 1, std::string::npos);
-                remove_repeats(params_, ';');
-                path_.resize(index);
+                index = path_.find(';');
+                if (index != std::string::npos)
+                {
+                    params_.assign(path_, index + 1, std::string::npos);
+                    remove_repeats(params_, ';');
+                    path_.resize(index);
+                }
             }
         }
     }
@@ -264,7 +328,14 @@ namespace Url
         if (!scheme_.empty())
         {
             result.append(scheme_);
-            result.append("://");
+            if (USES_NETLOC.find(scheme_) == USES_NETLOC.end())
+            {
+                result.append(":");
+            }
+            else
+            {
+                result.append("://");
+            }
         }
         else if (!host_.empty())
         {
@@ -297,6 +368,10 @@ namespace Url
         }
         else
         {
+            if (!host_.empty() && path_[0] != '/')
+            {
+                result.append(1, '/');
+            }
             result.append(path_);
         }
 
@@ -325,6 +400,13 @@ namespace Url
     {
         std::string copy;
         std::vector<size_t> segment_starts;
+
+        if (path_.size() >= 1 && path_[0] == '/')
+        {
+            copy.append(1, '/');
+            segment_starts.push_back(0);
+        }
+
         bool directory = false;
         size_t previous = 0;
         size_t index = 0;
@@ -356,8 +438,8 @@ namespace Url
             else
             {
                 segment_starts.push_back(copy.length());
-                copy.append(1, '/');
                 copy.append(path_, previous, index - previous);
+                copy.append(1, '/');
                 directory = false;
             }
         }
@@ -384,12 +466,16 @@ namespace Url
         }
         else
         {
-            copy.append(1, '/');
             copy.append(path_, previous, index - previous);
+            copy.append(1, '/');
             directory = false;
         }
 
-        if (directory)
+        if (!directory && copy.size() >= 1)
+        {
+            copy.resize(copy.size() - 1);
+        }
+        else if (directory && copy.empty())
         {
             copy.append(1, '/');
         }
@@ -400,6 +486,12 @@ namespace Url
 
     Url& Url::relative_to(const Url& other)
     {
+        // If this scheme does not use relative, return it unchanged
+        if (USES_RELATIVE.find(scheme_) == USES_RELATIVE.end())
+        {
+            return *this;
+        }
+
         // Support scheme-relative URLs
         if (scheme_.empty())
         {
