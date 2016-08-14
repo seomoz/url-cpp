@@ -137,6 +137,46 @@ namespace Url
         return result;
     }
 
+    std::string Punycode::encodeHostname(const std::string& hostname)
+    {
+        // Avoid any punycoding at all if none is needed
+        if (!needsPunycoding(hostname))
+        {
+            return hostname;
+        }
+
+        std::string encoded;
+
+        size_t start = 0;
+        size_t end = hostname.find('.');
+        while(true)
+        {
+            std::string segment = hostname.substr(start, end - start);
+            if (needsPunycoding(segment))
+            {
+                encoded.append("xn--");
+                encoded.append(Punycode::encode(segment));
+            }
+            else
+            {
+                encoded.append(segment);
+            }
+
+            if (end == std::string::npos)
+            {
+                break;
+            }
+            else
+            {
+                encoded.append(1, '.');
+                start = end + 1;
+                end = hostname.find('.', start);
+            }
+        }
+
+        return encoded;
+    }
+
     std::string& Punycode::decode(std::string& str)
     {
         // Pseudocode copied from https://tools.ietf.org/html/rfc3492#section-6.2
@@ -290,6 +330,40 @@ namespace Url
         std::string result(str);
         decode(result);
         return result;
+    }
+
+    std::string Punycode::decodeHostname(const std::string& hostname)
+    {
+        std::string unencoded;
+
+        size_t start = 0;
+        size_t end = hostname.find('.');
+        while(true)
+        {
+            std::string segment = hostname.substr(start, end - start);
+            if (segment.substr(0, 4).compare("xn--") == 0)
+            {
+                segment = segment.substr(4);
+                unencoded.append(Punycode::decode(segment));
+            }
+            else
+            {
+                unencoded.append(segment);
+            }
+
+            if (end == std::string::npos)
+            {
+                break;
+            }
+            else
+            {
+                unencoded.append(1, '.');
+                start = end + 1;
+                end = hostname.find('.', start);
+            }
+        }
+
+        return unencoded;
     }
 
     bool Punycode::needsPunycoding(const std::string& str)
