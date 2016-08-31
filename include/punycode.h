@@ -68,6 +68,11 @@ namespace Url
         std::string encode(const std::string& str);
 
         /**
+         * Encode a hostname.
+         */
+        std::string encodeHostname(const std::string& hostname);
+
+        /**
          * Replace punycoded str into utf-8-encoded.
          */
         std::string& decode(std::string& str);
@@ -76,6 +81,11 @@ namespace Url
          * Create a new utf-8-encoded string from punycoded input.
          */
         std::string decode(const std::string& str);
+
+        /**
+         * Decode a hostname.
+         */
+        std::string decodeHostname(const std::string& hostname);
 
         /**
          * Determine if a string needs punycoding.
