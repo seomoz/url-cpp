@@ -248,6 +248,16 @@ namespace Url
          */
         Url& unpunycode();
 
+        /**
+         * Ensure all the provided characters are escaped if necessary
+         */
+        static void escape(std::string& str, const CharacterClass& safe, bool strict);
+
+        /**
+         * Unescape entities in the provided string
+         */
+        static void unescape(std::string& str);
+
     private:
         // Private, unimplemented to prevent use.
         Url();
@@ -256,16 +266,6 @@ namespace Url
          * Remove repeated, leading, and trailing instances of chr from the string.
          */
         void remove_repeats(std::string& str, const char chr);
-
-        /**
-         * Ensure all the provided characters are escaped if necessary
-         */
-        void escape(std::string& str, const CharacterClass& safe, bool strict);
-
-        /**
-         * Unescape entities in the provided string
-         */
-        void unescape(std::string& str);
 
         /**
          * Remove any params that match entries in the blacklist.
