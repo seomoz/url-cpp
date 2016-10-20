@@ -321,6 +321,11 @@ namespace Url
         str.resize(length);
     }
 
+    std::string Url::fullpath() const
+    {
+        return "";
+    }
+
     std::string Url::str() const
     {
         std::string result;
