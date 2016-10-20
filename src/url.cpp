@@ -323,7 +323,31 @@ namespace Url
 
     std::string Url::fullpath() const
     {
-        return "";
+        std::string result;
+        if (path_.empty() || path_[0] != '/')
+        {
+            result.append(1, '/');
+        }
+        result.append(path_);
+
+        if (!params_.empty())
+        {
+            result.append(";");
+            result.append(params_);
+        }
+
+        if (!query_.empty())
+        {
+            result.append("?");
+            result.append(query_);
+        }
+
+        if (!fragment_.empty())
+        {
+            result.append("#");
+            result.append(fragment_);
+        }
+        return result;
     }
 
     std::string Url::str() const
