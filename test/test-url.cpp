@@ -1213,6 +1213,45 @@ TEST(DefragTest, Defrag)
         Url::Url("http://foo.com/path#fragment").defrag().str());
 }
 
+TEST(FullpathTest, OnlyPath)
+{
+    EXPECT_EQ("/path", Url::Url("path").fullpath());
+}
+
+TEST(FullpathTest, LeadingSlashPath)
+{
+    EXPECT_EQ("/path", Url::Url("/path").fullpath());
+}
+
+TEST(FullpathTest, EmptyPath)
+{
+    EXPECT_EQ("/", Url::Url("").fullpath());
+}
+
+TEST(FullpathTest, Params)
+{
+    EXPECT_EQ("/;params",
+        Url::Url(";params").fullpath());
+}
+
+TEST(FullpathTest, Query)
+{
+    EXPECT_EQ("/?query",
+        Url::Url("?query").fullpath());
+}
+
+TEST(FullpathTest, Fragment)
+{
+    EXPECT_EQ("/#fragment",
+        Url::Url("#fragment").fullpath());
+}
+
+TEST(FullpathTest, ParamsAndFriends)
+{
+    EXPECT_EQ("/path;params?query#fragment",
+        Url::Url("/path;params?query#fragment").fullpath());
+}
+
 TEST(PunycodeTest, German)
 {
     std::string unencoded("http://www.kündigen.de/");

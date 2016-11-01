@@ -158,6 +158,13 @@ namespace Url
         }
 
         /**
+         * Get a representation of all components of the path, params, query, fragment.
+         *
+         * Always includes a leading /.
+         */
+        std::string fullpath() const;
+
+        /**
          * Get a new string representation of the URL.
          **/
         std::string str() const;
