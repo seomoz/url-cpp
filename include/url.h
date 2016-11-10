@@ -178,6 +178,12 @@ namespace Url
          *********************/
 
         /**
+         * Strip semantically meaningless excess '?', '&', and ';' characters from query
+         * and params.
+         */
+        Url& strip();
+
+        /**
          * Make the path absolute.
          *
          * Evaluate '.', '..', and excessive slashes.

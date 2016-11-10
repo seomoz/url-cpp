@@ -231,18 +231,9 @@ namespace Url
             index = path_.find('?');
             if (index != std::string::npos)
             {
-                size_t start = path_.find_first_not_of('?', index + 1);
-                if (start != std::string::npos)
-                {
-                    query_.assign(path_, start, std::string::npos);
-                    remove_repeats(query_, '&');
-                }
-                else
-                {
-                    query_ = "";
-                }
-                path_.resize(index);
+                query_.assign(path_, index + 1, std::string::npos);
                 has_query_ = !query_.empty();
+                path_.resize(index);
             }
 
             if (USES_PARAMS.find(scheme_) != USES_PARAMS.end())
@@ -251,12 +242,13 @@ namespace Url
                 if (index != std::string::npos)
                 {
                     params_.assign(path_, index + 1, std::string::npos);
-                    remove_repeats(params_, ';');
+                    has_params_ = !params_.empty();
                     path_.resize(index);
                 }
-                has_params_ = !params_.empty();
             }
         }
+
+        strip();
     }
 
     Url& Url::assign(const Url& other)
@@ -428,6 +420,22 @@ namespace Url
         }
 
         return result;
+    }
+
+    Url& Url::strip()
+    {
+        size_t start = query_.find_first_not_of('?');
+        if (start != std::string::npos)
+        {
+            query_.assign(query_, start, std::string::npos);
+        }
+        else
+        {
+            query_.assign("");
+        }
+        setQuery(remove_repeats(query_, '&'));
+        setParams(remove_repeats(params_, ';'));
+        return *this;
     }
 
     Url& Url::abspath()
