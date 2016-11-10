@@ -1058,6 +1058,16 @@ TEST(EscapeTest, StrictPreservesSafeButReservedEntities)
         Url::Url("path%27s-ok").escape(true).str());
 }
 
+TEST(EscapeTest, PreservesHasQuery)
+{
+    EXPECT_EQ("/path?", Url::Url("/path?").escape(true).str());
+}
+
+TEST(EscapeTest, PreservesHasParams)
+{
+    EXPECT_EQ("/path;", Url::Url("/path;").escape(true).str());
+}
+
 TEST(EscapeTest, PermissiveFromUrlPy)
 {
     EXPECT_EQ("danny\'s%20pub",
@@ -1125,6 +1135,16 @@ TEST(UnescapeTest, NonHexEntity)
         Url::Url("a%20non%20hex%20%gh%20entity").unescape().str());
 }
 
+TEST(UnescapeTest, PreservesHasQuery)
+{
+    EXPECT_EQ("/path?", Url::Url("/path?").unescape().str());
+}
+
+TEST(UnescapeTest, PreservesHasParams)
+{
+    EXPECT_EQ("/path;", Url::Url("/path;").unescape().str());
+}
+
 TEST(UnescapeTest, UnescapesEverything)
 {
     std::string escaped =
@@ -1155,6 +1175,18 @@ TEST(FilterParams, CaseInsensitivity)
     std::unordered_set<std::string> blacklist = {"hello"};
     EXPECT_EQ("", Url::Url("?hELLo=2").deparam(blacklist).str());
     EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
+}
+
+TEST(FilterParams, RemovesEmptyQuery)
+{
+    std::unordered_set<std::string> blacklist = {"hello"};
+    EXPECT_EQ("/path", Url::Url("/path?").deparam(blacklist).str());
+}
+
+TEST(FilterParams, RemovesEmptyParams)
+{
+    std::unordered_set<std::string> blacklist = {"hello"};
+    EXPECT_EQ("/path", Url::Url("/path;").deparam(blacklist).str());
 }
 
 TEST(FilterParams, PredicateFormQuery)
