@@ -567,7 +567,8 @@ namespace Url
                 has_params_ = other.has_params_;
                 if (query_.empty())
                 {
-                    setQuery(other.query_);
+                    query_ = other.query_;
+                    has_query_ = other.has_query_;
                 }
             }
             else
@@ -599,8 +600,8 @@ namespace Url
     Url& Url::escape(bool strict)
     {
         escape(path_, PATH, strict);
-        setQuery(escape(query_, QUERY, strict));
-        setParams(escape(params_, QUERY, strict));
+        escape(query_, QUERY, strict);
+        escape(params_, QUERY, strict);
         escape(userinfo_, USERINFO, strict);
         return *this;
     }
@@ -661,8 +662,8 @@ namespace Url
     Url& Url::unescape()
     {
         unescape(path_);
-        setQuery(unescape(query_));
-        setParams(unescape(params_));
+        unescape(query_);
+        unescape(params_);
         unescape(userinfo_);
         return *this;
     }
@@ -771,8 +772,8 @@ namespace Url
 
     Url& Url::sort_query()
     {
-        setQuery(split_sort_join(query_, '&'));
-        setParams(split_sort_join(params_, ';'));
+        split_sort_join(query_, '&');
+        split_sort_join(params_, ';');
         return *this;
     }
 
