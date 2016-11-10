@@ -80,7 +80,9 @@ namespace Url
             , params_(other.params_)
             , query_(other.query_)
             , fragment_(other.fragment_)
-            , userinfo_(other.userinfo_) { }
+            , userinfo_(other.userinfo_)
+            , has_params_(other.has_params_)
+            , has_query_(other.has_query_) { }
 
         /**
          * Take on the value of the other URL.
@@ -133,6 +135,7 @@ namespace Url
         Url& setParams(const std::string& s)
         {
             params_ = s;
+            has_params_ = !s.empty();
             return *this;
         }
 
@@ -140,6 +143,7 @@ namespace Url
         Url& setQuery(const std::string& s)
         {
             query_ = s;
+            has_query_ = !s.empty();
             return *this;
         }
 
@@ -262,27 +266,28 @@ namespace Url
         /**
          * Remove repeated, leading, and trailing instances of chr from the string.
          */
-        void remove_repeats(std::string& str, const char chr);
+        std::string& remove_repeats(std::string& str, const char chr);
 
         /**
          * Ensure all the provided characters are escaped if necessary
          */
-        void escape(std::string& str, const CharacterClass& safe, bool strict);
+        std::string& escape(std::string& str, const CharacterClass& safe, bool strict);
 
         /**
          * Unescape entities in the provided string
          */
-        void unescape(std::string& str);
+        std::string& unescape(std::string& str);
 
         /**
          * Remove any params that match entries in the blacklist.
          */
-        void remove_params(std::string& str, const deparam_predicate& pred, char sep);
+        std::string& remove_params(
+            std::string& str, const deparam_predicate& pred, char sep);
 
         /**
          * Split the provided string by char, sort, join by char.
          */
-        void split_sort_join(std::string& str, const char glue);
+        std::string& split_sort_join(std::string& str, const char glue);
 
         /**
          * Check that the hostname is valid, removing an optional trailing '.'.
@@ -297,6 +302,8 @@ namespace Url
         std::string query_;
         std::string fragment_;
         std::string userinfo_;
+        bool has_params_;
+        bool has_query_;
     };
 
 }

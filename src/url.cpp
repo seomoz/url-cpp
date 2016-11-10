@@ -127,7 +127,7 @@ namespace Url
         "tel"
     };
 
-    Url::Url(const std::string& url): port_(0)
+    Url::Url(const std::string& url): port_(0), has_params_(false), has_query_(false)
     {
         size_t position = 0;
         size_t index = url.find(':');
@@ -242,6 +242,7 @@ namespace Url
                     query_ = "";
                 }
                 path_.resize(index);
+                has_query_ = !query_.empty();
             }
 
             if (USES_PARAMS.find(scheme_) != USES_PARAMS.end())
@@ -253,6 +254,7 @@ namespace Url
                     remove_repeats(params_, ';');
                     path_.resize(index);
                 }
+                has_params_ = !params_.empty();
             }
         }
     }
@@ -265,14 +267,16 @@ namespace Url
     bool Url::operator==(const Url& other) const
     {
         return (
-            (scheme_   == other.scheme_  ) &&
-            (userinfo_ == other.userinfo_) &&
-            (host_     == other.host_    ) &&
-            (port_     == other.port_    ) &&
-            (path_     == other.path_    ) &&
-            (params_   == other.params_  ) &&
-            (query_    == other.query_   ) &&
-            (fragment_ == other.fragment_)
+            (scheme_     == other.scheme_    ) &&
+            (userinfo_   == other.userinfo_  ) &&
+            (host_       == other.host_      ) &&
+            (port_       == other.port_      ) &&
+            (path_       == other.path_      ) &&
+            (params_     == other.params_    ) &&
+            (query_      == other.query_     ) &&
+            (fragment_   == other.fragment_  ) &&
+            (has_params_ == other.has_params_) &&
+            (has_query_  == other.has_query_ )
         );
     }
 
@@ -303,7 +307,7 @@ namespace Url
         return self_ == other_;
     }
 
-    void Url::remove_repeats(std::string& str, const char chr)
+    std::string& Url::remove_repeats(std::string& str, const char chr)
     {
         size_t dest = 0;
         // By initializing this to true, it also strips of leading instances of chr
@@ -319,6 +323,7 @@ namespace Url
         // Remove the last character if it happens to be chr
         size_t length = ((dest > 0) && (str[dest - 1] == chr)) ? dest - 1 : dest;
         str.resize(length);
+        return str;
     }
 
     std::string Url::fullpath() const
@@ -330,13 +335,13 @@ namespace Url
         }
         result.append(path_);
 
-        if (!params_.empty())
+        if (has_params_)
         {
             result.append(";");
             result.append(params_);
         }
 
-        if (!query_.empty())
+        if (has_query_)
         {
             result.append("?");
             result.append(query_);
@@ -404,13 +409,13 @@ namespace Url
             result.append(path_);
         }
 
-        if (!params_.empty())
+        if (has_params_)
         {
             result.append(";");
             result.append(params_);
         }
 
-        if (!query_.empty())
+        if (has_query_)
         {
             result.append("?");
             result.append(query_);
@@ -551,9 +556,10 @@ namespace Url
             {
                 path_ = other.path_;
                 params_ = other.params_;
+                has_params_ = other.has_params_;
                 if (query_.empty())
                 {
-                    query_ = other.query_;
+                    setQuery(other.query_);
                 }
             }
             else
@@ -585,13 +591,13 @@ namespace Url
     Url& Url::escape(bool strict)
     {
         escape(path_, PATH, strict);
-        escape(query_, QUERY, strict);
-        escape(params_, QUERY, strict);
+        setQuery(escape(query_, QUERY, strict));
+        setParams(escape(params_, QUERY, strict));
         escape(userinfo_, USERINFO, strict);
         return *this;
     }
 
-    void Url::escape(std::string& str, const CharacterClass& safe, bool strict)
+    std::string& Url::escape(std::string& str, const CharacterClass& safe, bool strict)
     {
         std::string copy(str);
         size_t dest = 0;
@@ -641,18 +647,19 @@ namespace Url
             }
         }
         str.resize(dest);
+        return str;
     }
 
     Url& Url::unescape()
     {
         unescape(path_);
-        unescape(query_);
-        unescape(params_);
+        setQuery(unescape(query_));
+        setParams(unescape(params_));
         unescape(userinfo_);
         return *this;
     }
 
-    void Url::unescape(std::string& str)
+    std::string& Url::unescape(std::string& str)
     {
         std::string copy(str);
         size_t dest = 0;
@@ -679,6 +686,7 @@ namespace Url
             str[dest] = copy[src];
         }
         str.resize(dest);
+        return str;
     }
 
     Url& Url::deparam(const std::unordered_set<std::string>& blacklist)
@@ -690,19 +698,19 @@ namespace Url
             return blacklist.find(name) != blacklist.end();
         };
 
-        remove_params(params_, predicate, ';');
-        remove_params(query_, predicate, '&');
+        setQuery(remove_params(query_, predicate, '&'));
+        setParams(remove_params(params_, predicate, ';'));
         return *this;
     }
 
     Url& Url::deparam(const deparam_predicate& predicate)
     {
-        remove_params(params_, predicate, ';');
-        remove_params(query_, predicate, '&');
+        setQuery(remove_params(query_, predicate, '&'));
+        setParams(remove_params(params_, predicate, ';'));
         return *this;
     }
 
-    void Url::remove_params(std::string& str,
+    std::string& Url::remove_params(std::string& str,
                             const deparam_predicate& predicate,
                             char sep)
     {
@@ -750,21 +758,22 @@ namespace Url
         }
 
         str.assign(copy);
+        return str;
     }
 
     Url& Url::sort_query()
     {
-        split_sort_join(query_, '&');
-        split_sort_join(params_, ';');
+        setQuery(split_sort_join(query_, '&'));
+        setParams(split_sort_join(params_, ';'));
         return *this;
     }
 
-    void Url::split_sort_join(std::string& str, const char glue)
+    std::string& Url::split_sort_join(std::string& str, const char glue)
     {
         // Return early if empty
         if (str.empty())
         {
-            return;
+            return str;
         }
 
         // Split
@@ -779,7 +788,7 @@ namespace Url
         // Return early if it's just a single element
         if (pieces.size() == 1)
         {
-            return;
+            return str;
         }
 
         // Sort
@@ -793,6 +802,7 @@ namespace Url
         }
         output << pieces.back();
         str.assign(output.str());
+        return str;
     }
 
     Url& Url::remove_default_port()
