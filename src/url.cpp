@@ -232,7 +232,7 @@ namespace Url
             if (index != std::string::npos)
             {
                 query_.assign(path_, index + 1, std::string::npos);
-                has_query_ = !query_.empty();
+                has_query_ = true;
                 path_.resize(index);
             }
 
@@ -242,13 +242,11 @@ namespace Url
                 if (index != std::string::npos)
                 {
                     params_.assign(path_, index + 1, std::string::npos);
-                    has_params_ = !params_.empty();
+                    has_params_ = true;
                     path_.resize(index);
                 }
             }
         }
-
-        strip();
     }
 
     Url& Url::assign(const Url& other)
@@ -282,14 +280,16 @@ namespace Url
         Url self_(*this);
         Url other_(other);
 
-        self_.sort_query()
+        self_.strip()
+             .sort_query()
              .defrag()
              .deuserinfo()
              .abspath()
              .escape()
              .punycode()
              .remove_default_port();
-        other_.sort_query()
+        other_.strip()
+              .sort_query()
               .defrag()
               .deuserinfo()
               .abspath()
