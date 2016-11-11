@@ -255,6 +255,34 @@ TEST(ParseTest, DoesNotUseParams)
     EXPECT_EQ("javascript:console.log('hello');console.log('world')", parsed.str());
 }
 
+TEST(ParseTest, EmptyQuery)
+{
+    Url::Url parsed("http://example.com/?");
+    EXPECT_EQ("http", parsed.scheme());
+    EXPECT_EQ("", parsed.userinfo());
+    EXPECT_EQ("example.com", parsed.host());
+    EXPECT_EQ(0, parsed.port());
+    EXPECT_EQ("/", parsed.path());
+    EXPECT_EQ("", parsed.params());
+    EXPECT_EQ("", parsed.query());
+    EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://example.com/?", parsed.str());
+}
+
+TEST(ParseTest, EmptyParams)
+{
+    Url::Url parsed("http://example.com/;");
+    EXPECT_EQ("http", parsed.scheme());
+    EXPECT_EQ("", parsed.userinfo());
+    EXPECT_EQ("example.com", parsed.host());
+    EXPECT_EQ(0, parsed.port());
+    EXPECT_EQ("/", parsed.path());
+    EXPECT_EQ("", parsed.params());
+    EXPECT_EQ("", parsed.query());
+    EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("http://example.com/;", parsed.str());
+}
+
 TEST(ParseTest, TestIllegalPort)
 {
     ASSERT_THROW(Url::Url("http://www.python.org:65536/"), Url::UrlParseException);
@@ -554,20 +582,20 @@ TEST(HostnameTest, LowercasesHostname)
 
 TEST(QueryTest, SanitizesQuery)
 {
-    EXPECT_EQ("a=1&b=2"    , Url::Url("http://foo.com/?a=1&&&&&&b=2"   ).query());
-    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/????foo=2"       ).query());
-    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/?foo=2&&&"       ).query());
-    EXPECT_EQ("query?"     , Url::Url("http://foo.com/?query?"         ).query());
-    EXPECT_EQ("repeats???q", Url::Url("http://foo.com/?repeats???q"    ).query());
-    EXPECT_EQ(""           , Url::Url("http://foo.com/?????"           ).query());
+    EXPECT_EQ("a=1&b=2"    , Url::Url("http://foo.com/?a=1&&&&&&b=2"   ).strip().query());
+    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/????foo=2"       ).strip().query());
+    EXPECT_EQ("foo=2"      , Url::Url("http://foo.com/?foo=2&&&"       ).strip().query());
+    EXPECT_EQ("query?"     , Url::Url("http://foo.com/?query?"         ).strip().query());
+    EXPECT_EQ("repeats???q", Url::Url("http://foo.com/?repeats???q"    ).strip().query());
+    EXPECT_EQ(""           , Url::Url("http://foo.com/?????"           ).strip().query());
 }
 
 TEST(ParamTest, SanitizesParams)
 {
-    EXPECT_EQ(""           , Url::Url("http://foo.com/"                ).params());
-    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2"   ).params());
-    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;;;a=1;;;;;;b=2" ).params());
-    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2;;;").params());
+    EXPECT_EQ(""           , Url::Url("http://foo.com/"                ).strip().params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2"   ).strip().params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;;;a=1;;;;;;b=2" ).strip().params());
+    EXPECT_EQ("a=1;b=2"    , Url::Url("http://foo.com/;a=1;;;;;;b=2;;;").strip().params());
 }
 
 TEST(AbspathTest, BasicPath)
@@ -1030,6 +1058,16 @@ TEST(EscapeTest, StrictPreservesSafeButReservedEntities)
         Url::Url("path%27s-ok").escape(true).str());
 }
 
+TEST(EscapeTest, PreservesHasQuery)
+{
+    EXPECT_EQ("/path?", Url::Url("/path?").escape(true).str());
+}
+
+TEST(EscapeTest, PreservesHasParams)
+{
+    EXPECT_EQ("/path;", Url::Url("/path;").escape(true).str());
+}
+
 TEST(EscapeTest, PermissiveFromUrlPy)
 {
     EXPECT_EQ("danny\'s%20pub",
@@ -1097,6 +1135,16 @@ TEST(UnescapeTest, NonHexEntity)
         Url::Url("a%20non%20hex%20%gh%20entity").unescape().str());
 }
 
+TEST(UnescapeTest, PreservesHasQuery)
+{
+    EXPECT_EQ("/path?", Url::Url("/path?").unescape().str());
+}
+
+TEST(UnescapeTest, PreservesHasParams)
+{
+    EXPECT_EQ("/path;", Url::Url("/path;").unescape().str());
+}
+
 TEST(UnescapeTest, UnescapesEverything)
 {
     std::string escaped =
@@ -1127,6 +1175,18 @@ TEST(FilterParams, CaseInsensitivity)
     std::unordered_set<std::string> blacklist = {"hello"};
     EXPECT_EQ("", Url::Url("?hELLo=2").deparam(blacklist).str());
     EXPECT_EQ("", Url::Url("?HELLo=2").deparam(blacklist).str());
+}
+
+TEST(FilterParams, RemovesEmptyQuery)
+{
+    std::unordered_set<std::string> blacklist = {"hello"};
+    EXPECT_EQ("/path", Url::Url("/path?").deparam(blacklist).str());
+}
+
+TEST(FilterParams, RemovesEmptyParams)
+{
+    std::unordered_set<std::string> blacklist = {"hello"};
+    EXPECT_EQ("/path", Url::Url("/path;").deparam(blacklist).str());
 }
 
 TEST(FilterParams, PredicateFormQuery)
@@ -1250,6 +1310,16 @@ TEST(FullpathTest, ParamsAndFriends)
 {
     EXPECT_EQ("/path;params?query#fragment",
         Url::Url("/path;params?query#fragment").fullpath());
+}
+
+TEST(FullpathTest, EmptyQuery)
+{
+    EXPECT_EQ("/?", Url::Url("?").fullpath());
+}
+
+TEST(FullpathTest, EmptyParams)
+{
+    EXPECT_EQ("/;", Url::Url(";").fullpath());
 }
 
 TEST(PunycodeTest, German)
