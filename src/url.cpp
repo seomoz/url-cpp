@@ -856,6 +856,20 @@ namespace Url
 
     Url& Url::host_reversed()
     {
+        std::reverse(host_.begin(), host_.end());
+        for (size_t index = 0, position = 0; index < host_.size(); index = position + 1)
+        {
+            position = host_.find('.', index);
+            if (position == std::string::npos)
+            {
+                std::reverse(host_.begin() + index, host_.end());
+                break;
+            }
+            else
+            {
+                std::reverse(host_.begin() + index, host_.begin() + position);
+            }
+        }
         return *this;
     }
 
