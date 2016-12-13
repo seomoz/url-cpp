@@ -265,6 +265,11 @@ namespace Url
          */
         Url& unpunycode();
 
+        /**
+         * Reverse the hostname (a.b.c.d => d.c.b.a)
+         */
+        Url& host_reversed();
+
     private:
         // Private, unimplemented to prevent use.
         Url();

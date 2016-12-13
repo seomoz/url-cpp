@@ -854,6 +854,11 @@ namespace Url
         return *this;
     }
 
+    Url& Url::host_reversed()
+    {
+        return *this;
+    }
+
     void Url::check_hostname(std::string& host)
     {
         // Skip empty hostnames -- they are valid

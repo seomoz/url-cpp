@@ -1322,6 +1322,24 @@ TEST(FullpathTest, EmptyParams)
     EXPECT_EQ("/;", Url::Url(";").fullpath());
 }
 
+TEST(HostReversedTest, Basic)
+{
+    EXPECT_EQ("http://com.example/path",
+        Url::Url("http://example.com/path").host_reversed().str());
+}
+
+TEST(HostReversedTest, Empty)
+{
+    EXPECT_EQ("/path",
+        Url::Url("/path").host_reversed().str());
+}
+
+TEST(HostReversedTest, Reversible)
+{
+    EXPECT_EQ("http://example.com/path",
+        Url::Url("http://example.com/path").host_reversed().host_reversed().str());
+}
+
 TEST(PunycodeTest, German)
 {
     std::string unencoded("http://www.kündigen.de/");
