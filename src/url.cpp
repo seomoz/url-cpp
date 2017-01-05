@@ -126,6 +126,36 @@ namespace Url
         "sips",
         "tel"
     };
+    const std::unordered_set<std::string> Url::KNOWN_PROTOCOLS = {
+        "",
+        "file",
+        "ftp",
+        "git",
+        "git+ssh",
+        "gopher",
+        "hdl",
+        "http",
+        "https",
+        "imap",
+        "mms",
+        "nfs",
+        "nntp",
+        "prospero",
+        "rsync",
+        "rtsp",
+        "rtspu",
+        "sftp",
+        "shttp",
+        "sip",
+        "sips",
+        "sms",
+        "snews",
+        "svn",
+        "svn+ssh",
+        "tel",
+        "telnet",
+        "wais"
+    };
 
     Url::Url(const std::string& url): port_(0), has_params_(false), has_query_(false)
     {
@@ -151,6 +181,20 @@ namespace Url
                     std::transform(
                         scheme_.begin(), scheme_.end(), scheme_.begin(), ::tolower);
                     position = index + 1;
+                }
+                else
+                {
+                    scheme_.assign(url, 0, index);
+                    std::transform(
+                        scheme_.begin(), scheme_.end(), scheme_.begin(), ::tolower);
+                    if (KNOWN_PROTOCOLS.find(scheme_) != KNOWN_PROTOCOLS.end())
+                    {
+                        position = index + 1;
+                    }
+                    else
+                    {
+                        scheme_.clear();
+                    }
                 }
             }
         }

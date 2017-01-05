@@ -66,6 +66,7 @@ namespace Url
         const static std::unordered_set<std::string> USES_RELATIVE;
         const static std::unordered_set<std::string> USES_NETLOC;
         const static std::unordered_set<std::string> USES_PARAMS;
+        const static std::unordered_set<std::string> KNOWN_PROTOCOLS;
 
         // The type of the predicate used for removing parameters
         typedef std::function<bool(std::string&, std::string&)> deparam_predicate;
