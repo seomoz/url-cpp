@@ -283,6 +283,34 @@ TEST(ParseTest, EmptyParams)
     EXPECT_EQ("http://example.com/;", parsed.str());
 }
 
+TEST(ParseTest, TelProtocol)
+{
+    Url::Url parsed("tel:0108202201");
+    EXPECT_EQ("tel", parsed.scheme());
+    EXPECT_EQ("", parsed.userinfo());
+    EXPECT_EQ("", parsed.host());
+    EXPECT_EQ(0, parsed.port());
+    EXPECT_EQ("0108202201", parsed.path());
+    EXPECT_EQ("", parsed.params());
+    EXPECT_EQ("", parsed.query());
+    EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("tel:0108202201", parsed.str());
+}
+
+TEST(ParseTest, UnknownProtocol)
+{
+    Url::Url parsed("unknown:0108202201");
+    EXPECT_EQ("", parsed.scheme());
+    EXPECT_EQ("", parsed.userinfo());
+    EXPECT_EQ("", parsed.host());
+    EXPECT_EQ(0, parsed.port());
+    EXPECT_EQ("unknown:0108202201", parsed.path());
+    EXPECT_EQ("", parsed.params());
+    EXPECT_EQ("", parsed.query());
+    EXPECT_EQ("", parsed.fragment());
+    EXPECT_EQ("unknown:0108202201", parsed.str());
+}
+
 TEST(ParseTest, TestIllegalPort)
 {
     ASSERT_THROW(Url::Url("http://www.python.org:65536/"), Url::UrlParseException);
