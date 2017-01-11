@@ -1,7 +1,7 @@
-CPP          = g++
-CPPOPTS      = -Wall -Werror -std=c++11 -Iinclude/
-DEBUG_OPTS   = -fprofile-arcs -ftest-coverage -O0 -g -fPIC
-RELEASE_OPTS = -O3
+CXX          ?= g++
+CXXOPTS      ?= -Wall -Werror -std=c++11 -Iinclude/
+DEBUG_OPTS   ?= -fprofile-arcs -ftest-coverage -O0 -g -fPIC
+RELEASE_OPTS ?= -O3
 
 # Release libraries
 release:
@@ -12,7 +12,7 @@ release/liburl.o: release/url.o release/utf8.o release/punycode.o release/psl.o
 
 release/%.o: src/%.cpp include/%.h
 	mkdir -p release
-	$(CPP) $(CPPOPTS) $(RELEASE_OPTS) -o $@ -c $<
+	$(CXX) $(CXXOPTS) $(RELEASE_OPTS) -o $@ -c $<
 
 # Debug libraries
 debug:
@@ -23,14 +23,14 @@ debug/liburl.o: debug/url.o debug/utf8.o debug/punycode.o debug/psl.o
 
 debug/%.o: src/%.cpp include/%.h
 	mkdir -p debug
-	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ -c $<
+	$(CXX) $(CXXOPTS) $(DEBUG_OPTS) -o $@ -c $<
 
 # Tests
 test/%.o: test/%.cpp
-	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ -c $<
+	$(CXX) $(CXXOPTS) $(DEBUG_OPTS) -o $@ -c $<
 
 test-all: test/test-all.o test/test-url.o test/test-utf8.o test/test-punycode.o test/test-psl.o debug/liburl.o
-	$(CPP) $(CPPOPTS) $(DEBUG_OPTS) -o $@ $^ -lgtest -lpthread
+	$(CXX) $(CXXOPTS) $(DEBUG_OPTS) -o $@ $^ -lgtest -lpthread
 
 .PHONY: test
 test: test-all
@@ -38,7 +38,7 @@ test: test-all
 	./scripts/check-coverage.sh $(PWD)
 
 bench: bench.cpp release
-	$(CPP) $(CPPOPTS) $(RELEASE_OPTS) -o $@ $< release/liburl.o
+	$(CXX) $(CXXOPTS) $(RELEASE_OPTS) -o $@ $< release/liburl.o
 
 clean:
 	find . -name '*.o' -o -name '*.gcda' -o -name '*.gcno' -o -name '*.gcov' \

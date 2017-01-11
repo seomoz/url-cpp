@@ -1,5 +1,8 @@
 sudo: required
 dist: trusty
+compiler:
+  - gcc
+  - clang
 git:
   submodules: false
 language: cpp
