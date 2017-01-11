@@ -2,7 +2,7 @@
 
 set -e
 
-sudo apt-get install -y g++ libgtest-dev cmake python-pip
+sudo apt-get install -y clang-3.5 g++ libgtest-dev cmake python-pip
 
 sudo pip install gcovr==3.2
 

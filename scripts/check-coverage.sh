@@ -21,7 +21,10 @@ results=`gcovr \
 lines=`echo ${results} | sed -E 's#^.*lines: ([0-9]+)(\.[0-9]+)?%.+$#\1#'`
 branches=`echo ${results} | sed -E 's#^.*branches: ([0-9]+)(\.[0-9]+)?%.+$#\1#'`
 
-if [ "${lines}" -ne "100" ]; then
+if [ "${lines}" -eq "0" ]; then
+    echo "Coverage disabled."
+    echo "#{results}"
+elif [ "${lines}" -ne "100" ]; then
     echo "Incomplete line coverage (${lines})"
     echo "${results}"
     exit 2
