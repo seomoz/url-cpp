@@ -331,6 +331,11 @@ TEST(ParseTest, TestPortNotNumber)
     ASSERT_THROW(Url::Url("http://www.python.org:80hello/"), Url::UrlParseException);
 }
 
+TEST(ParseTest, TestPortInvalid)
+{
+    ASSERT_THROW(Url::Url("http://:::cnn.com/"), Url::UrlParseException);
+}
+
 TEST(AssignTest, AssignsValue)
 {
     Url::Url assignee("");
