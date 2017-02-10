@@ -217,7 +217,7 @@ namespace Url
                 userinfo_.assign(host_, 0, index);
                 host_.assign(host_, index + 1, std::string::npos);
             }
-            
+
             // Lowercase the hostname
             std::transform(host_.begin(), host_.end(), host_.begin(), ::tolower);
 
@@ -422,7 +422,7 @@ namespace Url
         {
             result.append(host_);
         }
-        
+
         if (port_)
         {
             result.append(":");
@@ -734,7 +734,7 @@ namespace Url
                     continue;
                 }
             }
-            
+
             // Either not a % or an incomplete entity
             str[dest] = copy[src];
         }
@@ -952,7 +952,6 @@ namespace Url
             // Remove a trailing empty segment
             host.resize(start - 1);
         }
-
     }
 
 };
