@@ -253,6 +253,11 @@ namespace Url
                             throw UrlParseException("Port negative: " + portText);
                         }
                     }
+                    catch (const std::invalid_argument&)
+                    {
+                        // Malformed port
+                        throw UrlParseException("Port not a number: " + portText);
+                    }
                     catch (const std::out_of_range&)
                     {
                         throw UrlParseException("Port out of integer range: " + portText);
