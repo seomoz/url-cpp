@@ -674,7 +674,7 @@ namespace Url
                         HEX_TO_DEC[copy[src+1]] * 16 + HEX_TO_DEC[copy[src+2]]);
 
                     // In strict mode, we can only unescape parameters if they are both
-                    // safe and node reserved
+                    // safe and not reserved
                     if (!strict || (strict && safe(value) && !RESERVED(value)))
                     {
                         // Replace src + 2 with that byte, advance src to consume it and
