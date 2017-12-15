@@ -42,7 +42,7 @@ namespace Url
         {
             output.append(1, '-');
         }
-    
+
         // while h < length(input) do begin
         while (h < codepoints.size())
         {
@@ -63,7 +63,7 @@ namespace Url
             }
             delta += (m - n) * (h + 1);
 
-            // let n = m    
+            // let n = m
             n = m;
 
             // for each code point c in the input (in order) do begin
@@ -92,7 +92,7 @@ namespace Url
                         //         tmax if k >= bias + tmax, or k - bias otherwise
                         punycode_uint t = k <= bias ? TMIN :
                                           k >= bias + TMAX ? TMAX : k - bias;
-                        
+
                         // if q < t then break
                         if (q < t)
                         {
@@ -105,7 +105,7 @@ namespace Url
                         // let q = (q - t) div (base - t)
                         q = (q - t) / (BASE - t);
                     }
-            
+
                     // output the code point for digit q
                     output.append(1, DIGIT_TO_BASIC[q]);
 
@@ -117,15 +117,14 @@ namespace Url
 
                     // increment h
                     ++h;
-            
                 }
             }
-            
+
             // increment delta and n
             ++delta;
             ++n;
         }
- 
+
         str.assign(output);
         return str;
     }
@@ -230,7 +229,7 @@ namespace Url
                 {
                     throw std::invalid_argument("Premature termination");
                 }
-                
+
                 // let digit = the code point's digit-value, fail if it has none
                 int lookup = BASIC_TO_DIGIT[static_cast<size_t>(*it)];
                 if (lookup == -1)
@@ -256,7 +255,7 @@ namespace Url
                 {
                     break;
                 }
-                
+
                 // let w = w * (base - t), fail on overflow
                 if (w > (MAX_PUNYCODE_UINT / (BASE - t)))
                 {
@@ -294,10 +293,10 @@ namespace Url
                 }
                 w *= (BASE - t);
             }
-            
+
             // let bias = adapt(i - oldi, length(output) + 1, test oldi is 0?)
             bias = adapt(i - oldi, codepoints.size() + 1, oldi == 0);
-            
+
             // let n = n + i div (length(output) + 1), fail on overflow
             if ((i / (codepoints.size() + 1)) > (MAX_PUNYCODE_UINT - n))
             {
@@ -387,7 +386,7 @@ namespace Url
         // if firsttime then let delta = delta div damp
         // else let delta = delta div 2
         delta = firsttime ? delta / DAMP : delta >> 1;
-        
+
         // let delta = delta + (delta div numpoints)
         delta += (delta / numpoints);
 
@@ -401,7 +400,7 @@ namespace Url
             // let k = k + base
             delta /= (BASE - TMIN);
         }
-        
+
         // return k + (((base - tmin + 1) * delta) div (delta + skew))
         return k + (((BASE - TMIN + 1) * delta) / (delta + SKEW));
     }
