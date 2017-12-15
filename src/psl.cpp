@@ -140,7 +140,7 @@ namespace Url
 
         // Return the whole string if position == std:string::npos
         size_t start = (position == std::string::npos) ? 0 : position + 1;
-        
+
         std::string result(hostname, start);
         std::transform(result.begin(), result.end(), result.begin(), ::tolower);
 
