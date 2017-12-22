@@ -211,7 +211,7 @@ namespace Url
             position = index;
 
             if (    host_.empty()
-                    && (url.length() - position) >= 0
+                    && static_cast<int>(url.length() - position) >= 0
                     && url[position] == '/')
             {
                 position++;
