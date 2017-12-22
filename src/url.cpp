@@ -210,6 +210,13 @@ namespace Url
             host_.assign(url, position, index - position);
             position = index;
 
+            if (    host_.empty()
+                    && (url.length() - position) >= 0
+                    && url[position] == '/')
+            {
+                position++;
+            }
+
             // Extract any userinfo if there is any
             index = host_.find('@');
             if (index != std::string::npos)
@@ -443,7 +450,7 @@ namespace Url
         }
         else
         {
-            if (!host_.empty() && path_[0] != '/')
+            if (path_[0] != '/')
             {
                 result.append(1, '/');
             }
