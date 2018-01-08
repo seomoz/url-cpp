@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <string>
+#include <cstring>
 #include <iterator>
 #include <unordered_map>
 #include <unordered_set>
@@ -266,6 +267,15 @@ namespace Url
             }
         }
 
+        // Windows file path
+        if ((strncmp(scheme_.c_str(), "file", 4) == 0) &&
+                (static_cast<int>(url.length() - position) >= 2
+                 && url[position] == '/'
+                 && url[position + 2] == ':'))
+        {
+            position += 1;
+        }
+
         if (position != std::string::npos)
         {
             path_.assign(url, position, std::string::npos);
@@ -443,7 +453,8 @@ namespace Url
         }
         else
         {
-            if (!host_.empty() && path_[0] != '/')
+            if ((!host_.empty() && path_[0] != '/') ||
+                (host_.empty() && path_[0] != '/' && path_[1] == ':'))
             {
                 result.append(1, '/');
             }
