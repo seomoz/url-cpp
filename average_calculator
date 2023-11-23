@@ -1,0 +1,36 @@
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    // Variables
+    int num_Grades;
+    float grade;
+    float total = 0.0;
+
+    // Prompt user for the number of grades
+    cout << "Enter the number of grades = ";
+    cin >> num_Grades;
+
+    // Input individual grades
+    for (int i = 0; i < num_Grades; ++i)
+    {
+        //double grade;
+        cout << "Enter grade " << i + 1 << " = ";
+        cin >> grade;
+        total += grade;  // Accumulate grades for calculating average
+    }
+
+    // Calculate and display the average
+    if (num_Grades > 0)
+    {
+        double average = total / num_Grades;
+        cout << "The average of " << num_Grades << " grades is = " << average << endl;
+    }
+    else
+    {
+        cout << "Please enter at least one grade." << endl;
+    }
+    return 0;
+}
